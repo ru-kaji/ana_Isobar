@@ -1,0 +1,46 @@
+Error in cling::AutoLoadingVisitor::InsertIntoAutoLoadingState:
+   Missing FileEntry for StRefMultCorr.h
+   requested to autoload type StRefMultCorr
+Warning: input file name is too short to extract runnumber!
+input=19000001.lst
+runnum=0
+Load 19085038.root
+254613
+	Histograms will be stored in file 'OutAnaTree_19000001.root'
+
+Set up parameters
+=========================================
+Q Calib mode = 0
+Track efficiency is ON (run11-eff * relative-eff)
+Removing self-correltaion is OFF
+Systemaic flag = 1
+=========================================
+
+eff(0.6)=0.216944
+eff(0.8)=0.430111
+eff(1.0)=0.602878
+Isobar  Def
+StRefMultCorr::readHeaderFile  [refmult] Correction parameters and centrality definitions have been successfully read.
+read in nBadRun_refmult_2010: 717
+read in nBadRun_refmult_2011: 134
+read in nBadRun_grefmult_2014: 89
+read in nBadRun_grefmult_2016: 132
+read in nBadRun_refmult_2017: 24
+read in nBadRun_refmult_2018: 253
+read in nBadRun_refmult_2019: 930
+Event loop starts from here
+Event 1: fQcent = 14, vz = 14.2518
+Event 2: fQcent = 14, vz = 3.62008
+Event 3: fQcent = 11, vz = -0.0252377
+Event 4: fQcent = 5, vz = -2.60019
+Event 5: fQcent = 9, vz = -13.748
+Processed events = 100000/254613
+Processed events = 200000/254613
+CorTreeAnalyzer::End()
+	Processed 254613 events.
+unmatched events with StRefMult = 0, fraction = 0
+
+==================================================
+Real time 0:00:11, CP time 11.250
+==================================================
+
