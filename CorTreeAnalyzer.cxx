@@ -226,14 +226,12 @@ bool CorTreeAnalyzer::IsPairClose_pp(float eta1, float phi1, float eta2, float p
 			return true; // too close (Merging or Splitting)
 		}
 	}else if(ipid == 0 || ipid == 1){
-		float cut_eta = 0.05;
-		float cut_phi = 0.05;
+		float cut_eta = 0.04;
+		float cut_phi = 0.04;
 
 		float r2 = (deta * deta) / (cut_eta * cut_eta) + (dphi * dphi) / (cut_phi * cut_phi);
 	
-		if (r2 < 1.0) {
-			return true; 
-		}
+		if (r2 < 1.0) return true; 
 	}
 	//if(deta < 0.02 && fabs(dphi) < 0.03) return true; // Kehao cut
 
@@ -253,9 +251,7 @@ bool CorTreeAnalyzer::IsPairClose_pipi(float eta1, float phi1, float eta2, float
 
 		float r2 = (deta * deta) / (cut_eta * cut_eta) + (dphi * dphi) / (cut_phi * cut_phi);
 	
-		if (r2 < 1.0) {
-			return true; 
-		}
+		if (r2 < 1.0) return true; 
 	}
 	
     return false;
@@ -264,16 +260,12 @@ bool CorTreeAnalyzer::IsPairClose_pipi(float eta1, float phi1, float eta2, float
 bool CorTreeAnalyzer::IsPairClose_ppi(float eta1, float phi1, float eta2, float phi2, int ipid) {
     
     float deta = fabs(eta1 - eta2);
-	if(deta >= 0.05) return false;
+	if(deta >= 0.02) return false;
 
     float dphi = TVector2::Phi_mpi_pi(phi1 - phi2); // -pi ~ pi の範囲で差分を取る
 
 	if(ipid == 2){
-		if(0.3<dphi && dphi<0.9) return true;
-	}else if(ipid == 0){
-		if(-1.5<dphi && dphi<-0.6) return true;
-	}else if(ipid == 1){
-		if(0.6<dphi && dphi<1.5)  return true;
+		if(0.02<dphi && dphi<0.04) return true;
 	}
 	
     return false;
@@ -282,16 +274,12 @@ bool CorTreeAnalyzer::IsPairClose_ppi(float eta1, float phi1, float eta2, float 
 bool CorTreeAnalyzer::IsPairClose_pip(float eta1, float phi1, float eta2, float phi2, int ipid) {
     
     float deta = fabs(eta1 - eta2);
-	if(deta >= 0.05) return false;
+	if(deta >= 0.02) return false;
 
     float dphi = TVector2::Phi_mpi_pi(phi1 - phi2); // -pi ~ pi の範囲で差分を取る
 
 	if(ipid == 2){
-		if(0.3<dphi && dphi<0.9) return true;
-	}else if(ipid == 1){
-		if(-1.5<dphi && dphi<-0.6) return true;
-	}else if(ipid == 0){
-		if(0.6<dphi && dphi<1.5)  return true;
+		if(0.02<dphi && dphi<0.04) return true;
 	}
 	
     return false;
@@ -1127,7 +1115,7 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 					hqinv_same_cut[1][ipid][pairid][s][8]->Fill(qinv_same);
 				}
 		
-			/*if( IsPairClose_ppi(etaA1[pid1], phiStarA1[pid1], etaB2[pid2], phiStarB2[pid2], ipid) ) continue; // p - pi
+			if( IsPairClose_ppi(etaA1[pid1], phiStarA1[pid1], etaB2[pid2], phiStarB2[pid2], ipid) ) continue; // p - pi
 				 for (int s : spinid) {
 					hmass_same_cut[2][ipid][pairid][s]->Fill(massLL);
 					hqinv_same_cut[2][ipid][pairid][s][iCent]->Fill(qinv_same);
@@ -1140,7 +1128,7 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 					hqinv_same_cut[3][ipid][pairid][s][iCent]->Fill(qinv_same);
 					hqinv_same_cut[3][ipid][pairid][s][8]->Fill(qinv_same);
 				}
-
+/*
 			// check Spliting
 			if( ipid == 2){
 				if( IsSplitCheck(etaA1[pid1], phiStarA1[pid1], etaB2[pid2], phiStarB2[pid2]) ) continue; // p - pi
@@ -1402,7 +1390,7 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 								}
 							}
 						
-						/*if( IsPairClose_ppi(dgAeta[pid_curr][i], phiStarP_curr, etaPi_past, phiStarPi_past, ipid) ) continue; // p - pi
+						if( IsPairClose_ppi(dgAeta[pid_curr][i], phiStarP_curr, etaPi_past, phiStarPi_past, ipid) ) continue; // p - pi
 							 if (pairid >= 0 && pairid <= 3) {
 								for (int s : spinid) {
 									hmass_mix_cut[2][ipid][pairid][s]->Fill(massLL_mix);
@@ -1418,7 +1406,7 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 									hqinv_mix_cut[3][ipid][pairid][s][8]->Fill(qinv_mix);
 								}
 							}
-						
+						/*
 						if(ipid == 2){
 							if( IsSplitCheck(dgAeta[pid_curr][i], phiStarP_curr, etaPi_past, phiStarPi_past)) continue; // p - pi
 							if( IsSplitCheck(dgBeta[pid_curr][i], phiStarPi_curr, etaP_past, phiStarP_past) ) continue; // pi - p

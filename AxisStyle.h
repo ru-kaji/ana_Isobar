@@ -15,10 +15,10 @@ void SetAxis2D(TH1* h) {
 
     gPad->SetLeftMargin(0.20);
     gPad->SetBottomMargin(0.16);
-    gPad->SetTopMargin(0.12);
+    gPad->SetTopMargin(0.13);
 
-    gStyle->SetTitleFontSize(0.2);
-    gStyle->SetTitleY(1.1);
+    gStyle->SetTitleFontSize(0.06);
+    //gStyle->SetTitleY(1.0);
     h->GetXaxis()->SetTitleFont(43);
     h->GetXaxis()->SetTitleSize(21);
     h->GetXaxis()->SetTitleOffset(0.75);

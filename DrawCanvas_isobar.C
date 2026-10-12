@@ -316,12 +316,27 @@ void DrawCanvas_isobar(TString fileName){
 				SetAxis2D(h2D_Ang_ratio[ipid][idgpair][ispin]);
 				//h2D_Ang_ratio[ipid][idgpair][ispin]->Draw("colz");
 
+				//float min_X=0.0, max_X=0.0, min_Y=0.0, max_Y=0.0;
+				float min_X=-0.1, max_X=0.1, min_Y=-0.2, max_Y=0.2;
+/*
+				if(ipid==0 | ipid==1){
+					min_X = -0.05;
+					max_X = 0.05;
+					min_Y = -0.05;
+					max_Y = 0.05;
+				} else if(ipid==2){
+					min_X = -0.1;
+					max_X = 0.1;
+					min_Y = -0.2;
+					max_Y = 0.2;
+				}
+*/
 				h2D_Ang[ipid][idgpair][ispin]    ->GetXaxis()->SetRangeUser(-0.5, 0.5);
 				h2D_Ang[ipid][idgpair][ispin]    ->GetYaxis()->SetRangeUser(-1.5, 1.5);
 				h2D_Ang_mix[ipid][idgpair][ispin]->GetXaxis()->SetRangeUser(-0.5, 0.5);
 				h2D_Ang_mix[ipid][idgpair][ispin]->GetYaxis()->SetRangeUser(-1.5, 1.5);
-				h2D_Ang_ratio[ipid][idgpair][ispin]	 		  ->GetXaxis()->SetRangeUser(-0.1, 0.1);
-				h2D_Ang_ratio[ipid][idgpair][ispin]	 		  ->GetYaxis()->SetRangeUser(-0.2, 0.2);
+				h2D_Ang_ratio[ipid][idgpair][ispin]	 		  ->GetXaxis()->SetRangeUser(min_X, max_X);
+				h2D_Ang_ratio[ipid][idgpair][ispin]	 		  ->GetYaxis()->SetRangeUser(min_Y, max_Y);
 
 			}// end of daughter pair loop
 		}// end of spin loop
@@ -411,15 +426,26 @@ void DrawCanvas_isobar(TString fileName){
 		 */
 	} // end of pid loop
 
+	float R_TPC = 0.5;
+	TString title_R = TString::Format("R=%.1f", R_TPC);
 		//--------------------------------------------------
 		//  c3_ratio_pid: Δη vs Δφ* (LL, AA, LA)
 		//--------------------------------------------------
-		TCanvas *c3_ratio_pid = new TCanvas("c3_ratio_pid", "QA ratio (pid)", 1000, 700);
-		c3_ratio_pid->Divide(4, 3);
+		TCanvas *c3_ratio_pid = new TCanvas("c3_ratio_pid", "QA ratio (pid)", 1000, 800);
+		TPad *padMain_pid = new TPad("padMain_pid", "padMain_pid", 0.0, 0.0, 1.0, 0.96);
+		padMain_pid->Draw();
+		padMain_pid->Divide(4, 3);
+
+		c3_ratio_pid->cd(0);
+		TLatex *latex = new TLatex();
+		latex->SetNDC();
+		latex->SetTextSize(0.03);
+		latex->SetTextAlign(22);
+		latex->DrawLatex(0.5, 0.975, title_R);
 
 		for(int ipid=0; ipid<3; ipid++){
 			for(int idgpair=0; idgpair<4; idgpair++){
-				c3_ratio_pid->cd(ipid*4 + idgpair + 1);
+				padMain_pid->cd(ipid*4 + idgpair + 1);
 				gPad->SetLogz(0);
 				
 				h2D_Ang_ratio_pid[ipid][idgpair] = (TH2D*)h2D_Ang_ratio[ipid][idgpair][0]->Clone(Form("h2D_Ang_ratio_pid_%s_%s", pidName[ipid], dgPairName_2D[idgpair]));
@@ -435,12 +461,18 @@ void DrawCanvas_isobar(TString fileName){
 		TCanvas *c3_ratio_spin[3];
 		for(int ipid=0; ipid<3; ipid++){
 
-			c3_ratio_spin[ipid]= new TCanvas(Form("c3_ratio_spin_%s", pidName[ipid]), Form("QA ratio (spin) %s", pidName[ipid]), 1000, 700);
-			c3_ratio_spin[ipid]->Divide(4, 3);
+			c3_ratio_spin[ipid]= new TCanvas(Form("c3_ratio_spin_%s", pidName[ipid]), Form("QA ratio (spin) %s", pidName[ipid]), 1000, 800);
+			TPad *padMain_spin = new TPad(Form("padMain_spin_%s", pidName[ipid]), "padMain_spin", 0.0, 0.0, 1.0, 0.96);
+			padMain_spin->Draw();
+			padMain_spin->Divide(4, 3);
+
+			c3_ratio_spin[ipid]->cd(0);
+			latex->DrawLatex(0.5, 0.975, title_R);
+
 		
 			for(int ispin=0; ispin<3; ispin++){
 				for(int idgpair=0; idgpair<4; idgpair++){
-					c3_ratio_spin[ipid]->cd(ispin*4 + idgpair + 1);
+					padMain_spin->cd(ispin*4 + idgpair + 1);
 					gPad->SetLogz(0);
 					if(h2D_Ang_ratio[ipid][idgpair][ispin]){
 						SetAxis2D(h2D_Ang_ratio[ipid][idgpair][ispin]);
@@ -708,14 +740,14 @@ void DrawCanvas_isobar(TString fileName){
 			line2->Draw("same");
 		}*/
 
-	c3_ratio_pid->SaveAs("h2D_isobar_ratio_pid.pdf");
+	c3_ratio_pid->SaveAs(Form("h2D_isobar_pid_%.1f.pdf", R_TPC));
 
 	for(int ipid=0; ipid<3; ipid++){
 		for(int ispin=0; ispin<3; ispin++){
 			//c3[ipid][ispin]->SaveAs(Form("h2D_isobar_%s_%s.pdf", pidName[ipid], spinName[ispin]));	
 		}
 		
-		c3_ratio_spin[ipid]->SaveAs(Form("h2D_isobar_ratio_spin_%s.pdf", pidName[ipid]));
+		c3_ratio_spin[ipid]->SaveAs(Form("h2D_isobar_spin_%s_%.1f.pdf", pidName[ipid], R_TPC));
 		//c4[ipid]->SaveAs(Form("deta_isobar_%s.pdf", pidName[ipid]));
 		//c5[ipid]->SaveAs(Form("dphiStar_isobar_%s.pdf", pidName[ipid]));
 	}
