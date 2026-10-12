@@ -189,7 +189,7 @@ void DrawCanvas_isobar(TString fileName){
 	//  c10 : Qinv			 (same, mix, same/mix) \ (All, Para, Anti)
 	//--------------------------------------------------
 
-		
+		/*
 		//--------------------------------------------------
 		//  c1: Angle //SSのみ
 		//--------------------------------------------------
@@ -239,9 +239,13 @@ void DrawCanvas_isobar(TString fileName){
 			hcosAngle_ratio->Draw();
 			SetAxis(hcosAngle_ratio);
 			}
-		}
+		}*/
 
 	//===========================================================================
+	TH2D *h2D_Ang_ratio[3][4][3] = {nullptr}; // [pid][dgpair][ispin]
+	TH2D *h2D_Ang_ratio_pid[3][4] = {nullptr};
+	TH2D *h2D_Ang_ratio_spin[3][4][3] = {nullptr};
+
 	for(int ipid=0; ipid<3; ipid++){ // 0:LL, 1:AA, 2:LA
 		//--------------------------------------------------
 		//  c3: QA eta vs phi* (LL, AA, LA)
@@ -299,30 +303,30 @@ void DrawCanvas_isobar(TString fileName){
                 Double_t nMix  = h2D_Ang_mix[ipid][idgpair][ispin]->Integral(bX_neg_min, bX_neg_max, bY_min, bY_max)
                                + h2D_Ang_mix[ipid][idgpair][ispin]->Integral(bX_pos_min, bX_pos_max, bY_min, bY_max);
 
-				TH2F *h2D_Ang_ratio = (TH2F*)h2D_Ang[ipid][idgpair][ispin]->Clone(Form("h2D_Ang%s_%s", pidName[ipid], dgPairName_2D[idgpair]));
-				h2D_Ang_ratio->Sumw2();
-				if(nSame > 0 && nMix > 0) h2D_Ang_ratio->Scale(nMix / nSame);
-				h2D_Ang_ratio->Divide(h2D_Ang_mix[ipid][idgpair][ispin]);
-				h2D_Ang_ratio->SetStats(0);
-				h2D_Ang_ratio->SetMinimum(0.05);
-				h2D_Ang_ratio->SetMaximum(1.2);
-				h2D_Ang_ratio->SetTitle(Form("(Same/Mix) %s %s %s", dgPairName_2D[idgpair], pidTitle[ipid], spinTitle[ispin]));
-				h2D_Ang_ratio->SetXTitle("#Delta#eta");
-				h2D_Ang_ratio->SetYTitle("#Delta#phi*");
-				SetAxis2D(h2D_Ang_ratio);
-				h2D_Ang_ratio->Draw("colz");
+				h2D_Ang_ratio[ipid][idgpair][ispin] = (TH2D*)h2D_Ang[ipid][idgpair][ispin]->Clone(Form("h2D_Ang%s_%s", pidName[ipid], dgPairName_2D[idgpair]));
+				h2D_Ang_ratio[ipid][idgpair][ispin]->Sumw2();
+				if(nSame > 0 && nMix > 0) h2D_Ang_ratio[ipid][idgpair][ispin]->Scale(nMix / nSame);
+				h2D_Ang_ratio[ipid][idgpair][ispin]->Divide(h2D_Ang_mix[ipid][idgpair][ispin]);
+				h2D_Ang_ratio[ipid][idgpair][ispin]->SetStats(0);
+				h2D_Ang_ratio[ipid][idgpair][ispin]->SetMinimum(0.05);
+				h2D_Ang_ratio[ipid][idgpair][ispin]->SetMaximum(1.2);
+				h2D_Ang_ratio[ipid][idgpair][ispin]->SetTitle(Form("(Same/Mix) %s %s %s", dgPairName_2D[idgpair], pidTitle[ipid], spinTitle[ispin]));
+				h2D_Ang_ratio[ipid][idgpair][ispin]->SetXTitle("#Delta#eta");
+				h2D_Ang_ratio[ipid][idgpair][ispin]->SetYTitle("#Delta#phi*");
+				SetAxis2D(h2D_Ang_ratio[ipid][idgpair][ispin]);
+				//h2D_Ang_ratio[ipid][idgpair][ispin]->Draw("colz");
 
 				h2D_Ang[ipid][idgpair][ispin]    ->GetXaxis()->SetRangeUser(-0.5, 0.5);
 				h2D_Ang[ipid][idgpair][ispin]    ->GetYaxis()->SetRangeUser(-1.5, 1.5);
 				h2D_Ang_mix[ipid][idgpair][ispin]->GetXaxis()->SetRangeUser(-0.5, 0.5);
 				h2D_Ang_mix[ipid][idgpair][ispin]->GetYaxis()->SetRangeUser(-1.5, 1.5);
-				h2D_Ang_ratio	 		  ->GetXaxis()->SetRangeUser(-0.1, 0.1);
-				h2D_Ang_ratio	 		  ->GetYaxis()->SetRangeUser(-0.2, 0.2);
+				h2D_Ang_ratio[ipid][idgpair][ispin]	 		  ->GetXaxis()->SetRangeUser(-0.1, 0.1);
+				h2D_Ang_ratio[ipid][idgpair][ispin]	 		  ->GetYaxis()->SetRangeUser(-0.2, 0.2);
 
 			}// end of daughter pair loop
 		}// end of spin loop
 	
-		
+		/*
 
 		//--------------------------------------------------
 		//  c4: Δη
@@ -404,7 +408,48 @@ void DrawCanvas_isobar(TString fileName){
 			SetAxis(hDphi_ratio);
 			
 		} // end of daughter pair Loop	
-		} // end of pid loop
+		 */
+	} // end of pid loop
+
+		//--------------------------------------------------
+		//  c3_ratio_pid: Δη vs Δφ* (LL, AA, LA)
+		//--------------------------------------------------
+		TCanvas *c3_ratio_pid = new TCanvas("c3_ratio_pid", "QA ratio (pid)", 1000, 700);
+		c3_ratio_pid->Divide(4, 3);
+
+		for(int ipid=0; ipid<3; ipid++){
+			for(int idgpair=0; idgpair<4; idgpair++){
+				c3_ratio_pid->cd(ipid*4 + idgpair + 1);
+				gPad->SetLogz(0);
+				
+				h2D_Ang_ratio_pid[ipid][idgpair] = (TH2D*)h2D_Ang_ratio[ipid][idgpair][0]->Clone(Form("h2D_Ang_ratio_pid_%s_%s", pidName[ipid], dgPairName_2D[idgpair]));
+				SetAxis2D(h2D_Ang_ratio_pid[ipid][idgpair]);
+				h2D_Ang_ratio_pid[ipid][idgpair]->Draw("colz");
+				
+			}
+		}
+
+		//--------------------------------------------------
+		//  c3_ratio_spin: Δη vs Δφ* (ALL, Para, Anti)
+		//--------------------------------------------------
+		TCanvas *c3_ratio_spin[3];
+		for(int ipid=0; ipid<3; ipid++){
+
+			c3_ratio_spin[ipid]= new TCanvas(Form("c3_ratio_spin_%s", pidName[ipid]), Form("QA ratio (spin) %s", pidName[ipid]), 1000, 700);
+			c3_ratio_spin[ipid]->Divide(4, 3);
+		
+			for(int ispin=0; ispin<3; ispin++){
+				for(int idgpair=0; idgpair<4; idgpair++){
+					c3_ratio_spin[ipid]->cd(ispin*4 + idgpair + 1);
+					gPad->SetLogz(0);
+					if(h2D_Ang_ratio[ipid][idgpair][ispin]){
+						SetAxis2D(h2D_Ang_ratio[ipid][idgpair][ispin]);
+						h2D_Ang_ratio[ipid][idgpair][ispin]->DrawCopy("colz");
+					}
+				}
+			}
+		}
+
 /*
 		//--------------------------------------------------
 		//  c6: M_inv (pair) (All spin)
@@ -441,7 +486,7 @@ void DrawCanvas_isobar(TString fileName){
 			
 		}
 	} // end of pid loop
-*/
+
 		//--------------------------------------------------
 		//  c7: Qinv (All spin) ← ParaとAntiどうしよう
 		//---------------------------------------------------	
@@ -461,11 +506,12 @@ void DrawCanvas_isobar(TString fileName){
 				TH1 *hqinv_mix_scaled = ScaleHist(hqinv_same[0][ipid][ipair][0][8], hqinv_mix[0][ipid][ipair][0][8], min_Qinv, max_Qinv);
 				hqinv_mix_scaled->SetTitle(Form("%s %s", pidName[ipid], pairName[ipair]));
 				hqinv_mix_scaled->Draw("same");
-				/*
+				
 				SetAxis(hqinv_same[ipid][ipair][0][8]);
-				SetLegend(hqinv_same[ipid][ipair][0][8], hqinv_mix_scaled)->Draw();*/
+				SetLegend(hqinv_same[ipid][ipair][0][8], hqinv_mix_scaled)->Draw();
 			}
 		}
+		*/
 /*
 		//---------------------------------------------------
 		//  c8: Mass (Low Qinv)
@@ -662,11 +708,14 @@ void DrawCanvas_isobar(TString fileName){
 			line2->Draw("same");
 		}*/
 
+	c3_ratio_pid->SaveAs("h2D_isobar_ratio_pid.pdf");
 
 	for(int ipid=0; ipid<3; ipid++){
 		for(int ispin=0; ispin<3; ispin++){
-			c3[ipid][ispin]->SaveAs(Form("h2D_isobar_%s_%s.pdf", pidName[ipid], spinName[ispin]));	
+			//c3[ipid][ispin]->SaveAs(Form("h2D_isobar_%s_%s.pdf", pidName[ipid], spinName[ispin]));	
 		}
+		
+		c3_ratio_spin[ipid]->SaveAs(Form("h2D_isobar_ratio_spin_%s.pdf", pidName[ipid]));
 		//c4[ipid]->SaveAs(Form("deta_isobar_%s.pdf", pidName[ipid]));
 		//c5[ipid]->SaveAs(Form("dphiStar_isobar_%s.pdf", pidName[ipid]));
 	}

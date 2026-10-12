@@ -766,7 +766,7 @@ void plotCF_isobar(TString fileName) {
 
             hPara_cut_Corr->SetName(Form("hCF_Para_%s", pidName[ipid]));
             hAnti_cut_Corr->SetName(Form("hCF_Anti_%s", pidName[ipid]));
-            TFile *f_my = new TFile("check_isobar_mycut_cutpairs_full_norebin_phiminus.root", "UPDATE");
+            TFile *f_my = new TFile("check_isobar_mycut_cutfakeV0_full_norebin_phiminus.root", "UPDATE");
             hPara_cut_Corr->Write();
             hAnti_cut_Corr->Write();
             f_my->Close();

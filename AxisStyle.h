@@ -6,12 +6,19 @@
 
 void SetAxis2D(TH1* h) {
     if (!h) return;
+    /*
+    TObject *oldTitle = h->GetListOfFunctions()->FindObject("title");
+    if (oldTitle) {
+        h->GetListOfFunctions()->Remove(oldTitle);
+        delete oldTitle;
+    }*/
 
     gPad->SetLeftMargin(0.20);
     gPad->SetBottomMargin(0.16);
     gPad->SetTopMargin(0.12);
 
     gStyle->SetTitleFontSize(0.2);
+    gStyle->SetTitleY(1.1);
     h->GetXaxis()->SetTitleFont(43);
     h->GetXaxis()->SetTitleSize(21);
     h->GetXaxis()->SetTitleOffset(0.75);
