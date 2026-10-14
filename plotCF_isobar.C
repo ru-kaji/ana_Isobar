@@ -43,8 +43,8 @@ public:
             hSame->Rebin(rebin_factor);
             hMix->Rebin(rebin_factor);*/
 
-            hSame->Sumw2();
-            hMix->Sumw2();
+            if (!hSame->GetSumw2N()) hSame->Sumw2();
+            if (!hMix->GetSumw2N()) hMix->Sumw2();
         } else {
             //std::cout << "Error: Input histograms are null!" << std::endl;
         }
@@ -396,6 +396,14 @@ void plotCF_isobar(TString fileName) {
     TH1D *hPara_AA = nullptr;
     TH1D *hAnti_LL = nullptr;
     TH1D *hAnti_AA = nullptr;
+
+    TH1D *hSave_CF_All[4]  = {nullptr};
+    TH1D *hSave_CF_Para[4] = {nullptr};
+    TH1D *hSave_CF_Anti[4] = {nullptr};
+
+    TH1D *hSave_Same_All[4] = {nullptr}; TH1D *hSave_Mix_All[4] = {nullptr};
+    TH1D *hSave_Same_Para[4]= {nullptr}; TH1D *hSave_Mix_Para[4]= {nullptr};
+    TH1D *hSave_Same_Anti[4]= {nullptr}; TH1D *hSave_Mix_Anti[4]= {nullptr};
     
     //--------------------------------------------------
     //  [pid] = [0: LL, 1: AA, 2: LA, 3:LL+AA]
@@ -466,18 +474,49 @@ void plotCF_isobar(TString fileName) {
         }
 
         // ---------------------------------------------------------
-        // c_cf3 : Normed (with TLegend)
+        // c_cf3 : Normed + Correcter (All Spin)
         //----------------------------------------------------------
         c_cf3 = new TCanvas("c_cf3", "CF3",1400, 400);
         c_cf3 ->Divide(4, 1);
 
         for(int ipid = 0; ipid < 4; ipid++) {
             c_cf3 -> cd(ipid+1);
-            CFAnalyzer ana3(hSame[4][ipid][0][0][8], hMix[4][ipid][0][0][8], pidName[ipid]);
-            ana3.Calculate(0.5, 0.8);
-            TH1D *hNorm = ana3.GetNorm();
-            hNorm->SetTitle(pidName[ipid]);
-            ana3.DrawNorm(hNorm, "PE");
+            CFAnalyzer ana3_SS(hSame[4][ipid][0][0][8], hMix[4][ipid][0][0][8], pidName[ipid], pL[0], pA[0]);
+            CFAnalyzer ana3_SB(hSame[4][ipid][1][0][8], hMix[4][ipid][1][0][8], pidName[ipid], pL[0], pA[0]);
+            CFAnalyzer ana3_BS(hSame[4][ipid][2][0][8], hMix[4][ipid][2][0][8], pidName[ipid], pL[0], pA[0]);
+            CFAnalyzer ana3_BB(hSame[4][ipid][3][0][8], hMix[4][ipid][3][0][8], pidName[ipid], pL[0], pA[0]);
+
+            // 規格化
+            ana3_SS.Calculate(0.5, 0.8);
+            ana3_SB.Calculate(0.5, 0.8);
+            ana3_BS.Calculate(0.5, 0.8);
+            ana3_BB.Calculate(0.5, 0.8);
+
+            ana3_SS.CorrectCF(ana3_SB.GetNorm(), ana3_BS.GetNorm(), ana3_BB.GetNorm());
+            TH1D *hNormCorr_All = ana3_SS.GetNormCorr();
+            if(!hNormCorr_All) continue;
+
+            hSave_CF_All[ipid]   = (TH1D*)hNormCorr_All->Clone(Form("hCF_All_%s", pidName[ipid]));
+            hSave_Same_All[ipid] = (TH1D*)hSame[4][ipid][0][0][8]->Clone(Form("hSame_All_%s", pidName[ipid]));
+            hSave_Mix_All[ipid]  = (TH1D*)hMix[4][ipid][0][0][8]->Clone(Form("hMix_All_%s", pidName[ipid]));
+            
+            // 描画設定
+            hNormCorr_All->SetTitle(Form("%s;Q_{inv} (GeV/c);C(Q_{inv})", pidName[ipid]));
+            hNormCorr_All->GetXaxis()->SetRangeUser(0.0, 0.6); // 低Q領域にフォーカス
+            hNormCorr_All->SetMinimum(0.6);
+            hNormCorr_All->SetMaximum(1.4);
+            
+            hNormCorr_All->SetMarkerStyle(20);
+            hNormCorr_All->SetMarkerColor(kBlack);
+            hNormCorr_All->SetLineColor(kBlack);
+            
+            hNormCorr_All->Draw("PE");
+            SetAxisCF(hNormCorr_All);
+            
+            // 基準線
+            TLine *line_cf3 = new TLine(0.0, 1.0, 0.6, 1.0);
+            line_cf3->SetLineStyle(2);
+            line_cf3->Draw();
         }
 
 
@@ -766,11 +805,15 @@ void plotCF_isobar(TString fileName) {
 
             hPara_cut_Corr->SetName(Form("hCF_Para_%s", pidName[ipid]));
             hAnti_cut_Corr->SetName(Form("hCF_Anti_%s", pidName[ipid]));
-            TFile *f_my = new TFile("check_isobar_mycut_cutfakeV0_full_norebin_phiminus.root", "UPDATE");
-            hPara_cut_Corr->Write();
-            hAnti_cut_Corr->Write();
-            f_my->Close();
-            cout << "save hCF_ " << pidName[ipid] << "in check_isobar_Kehao_cutpairs_full_norebin.root" << endl;
+            
+            hSave_CF_Para[ipid] = (TH1D*)hPara_cut_Corr->Clone(Form("hCF_Para_%s", pidName[ipid]));
+            hSave_CF_Anti[ipid] = (TH1D*)hAnti_cut_Corr->Clone(Form("hCF_Anti_%s", pidName[ipid]));
+
+            hSave_Same_Para[ipid] = (TH1D*)hSame[4][ipid][0][1][8]->Clone(Form("hSame_Para_%s", pidName[ipid]));
+            hSave_Mix_Para[ipid]  = (TH1D*)hMix[4][ipid][0][1][8]->Clone(Form("hMix_Para_%s", pidName[ipid]));
+
+            hSave_Same_Anti[ipid] = (TH1D*)hSame[4][ipid][0][2][8]->Clone(Form("hSame_Anti_%s", pidName[ipid]));
+            hSave_Mix_Anti[ipid]  = (TH1D*)hMix[4][ipid][0][2][8]->Clone(Form("hMix_Anti_%s", pidName[ipid]));
             }
 
         
@@ -1136,7 +1179,25 @@ void plotCF_isobar(TString fileName) {
         }
 
     
+    TString outFileName = "check_isobar_mycut2_cutfakeV0_full_norebin_phiminus.root";
+    TFile *f_my = new TFile(outFileName, "UPDATE");
 
+    for(int ipid = 0; ipid < 4; ipid++) {
+    
+        hSave_CF_All[ipid]->Write("", TObject::kOverwrite);
+        hSave_CF_Para[ipid]->Write("", TObject::kOverwrite);
+        hSave_CF_Anti[ipid]->Write("", TObject::kOverwrite);
+
+        hSave_Same_All[ipid]->Write("", TObject::kOverwrite);
+        hSave_Mix_All[ipid]->Write("", TObject::kOverwrite);
+        hSave_Same_Para[ipid]->Write("", TObject::kOverwrite);
+        hSave_Mix_Para[ipid]->Write("", TObject::kOverwrite);
+        hSave_Same_Anti[ipid]->Write("", TObject::kOverwrite);
+        hSave_Mix_Anti[ipid]->Write("", TObject::kOverwrite);
+    }
+    
+    f_my->Close();
+    std::cout << "✅ Saved histograms to " << outFileName << std::endl;
        
 
 
