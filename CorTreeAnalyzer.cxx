@@ -154,12 +154,16 @@ Int_t CorTreeAnalyzer::Init()
 	TFile *fWeight = TFile::Open("weight_func.root", "READ");
     if(fWeight && !fWeight->IsZombie()){
         hWeightFunc = (TH1D*)fWeight->Get("hWeight");
-        hWeightFunc->SetDirectory(0); // ファイルを閉じてもメモリに保持させる
+        if(hWeightFunc)hWeightFunc->SetDirectory(0); // ファイルを閉じてもメモリに保持させる
+
+		hWeightFunc_BW = (TH1D*)fWeight->Get("hWeight_BW");
+		if(hWeightFunc_BW)hWeightFunc_BW->SetDirectory(0); // ファイルを閉じてもメモリに保持させる
         fWeight->Close();
-        std::cout << "✅ Loaded weight function (hWeight) successfully!" << std::endl;
+        std::cout << "✅ Loaded weight function (hWeight_BW) successfully!" << std::endl;
     } else {
         std::cout << "⚠️ Warning: Could not load weight_func.root! Weight will be 1.0" << std::endl;
         hWeightFunc = nullptr;
+        hWeightFunc_BW = nullptr;
     }
 
 	/*if( mSelfCor ){
@@ -214,6 +218,7 @@ Int_t CorTreeAnalyzer::End()
 
 	// Write histos to file and close it.
     if( mFile ){
+      mFile->cd();
 		WriteHistograms();
       //mFile->Write();  
     	mFile->Close();
@@ -228,18 +233,17 @@ bool CorTreeAnalyzer::IsPairClose_pp(float eta1, float phi1, float eta2, float p
 	if(deta > 0.05) return false; // my cut
 
     float dphi = TVector2::Phi_mpi_pi(phi1 - phi2); // -pi ~ pi の範囲で差分を取る
-	if( fabs(dphi)>0.05) return false;
 
 	if(ipid == 2){
-		if(deta < 0.025) return true;
+		if(deta < 0.025 && fabs(dphi)<0.05 ) return true;
 
 		//if( dphi < -0.1 && dphi > -0.4 ) { //R_TPC=0.7
 		if( -0.08 < dphi && dphi < 0.16 ) {   //R_TPC=1.5
 			return true; // too close (Merging or Splitting)
 		}
 	}else if(ipid == 0 || ipid == 1){
-		float cut_eta = 0.04;
-		float cut_phi = 0.04;
+		float cut_eta = 0.02;
+		float cut_phi = 0.03;
 
 		float r2 = (deta * deta) / (cut_eta * cut_eta) + (dphi * dphi) / (cut_phi * cut_phi);
 	
@@ -327,7 +331,7 @@ double CorTreeAnalyzer::NormalizePhi(double phi) {
 const double B_TESLA = -0.5;
 const double R_VERTEX = 0.0;
 //const double R_TPC_METERS = 1.5; 
-const double R_TPC_METERS = 1.0; 
+const double R_TPC_METERS = 0.7; 
 
 
 double CorTreeAnalyzer::GetPhiStar(double phi_meas, double pt, double charge){
@@ -1414,9 +1418,14 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 						if( IsPairClose_pip(dgBeta[pid_curr][i], phiStarPi_curr, etaP_past, phiStarP_past, ipid) ) continue; // pi - p		
 
 						double weight = 1.0;
-                        if ((ipid == 0 || ipid == 1) && hWeightFunc != nullptr) {
+						double weight_BW = 1.0;
+                        if ((ipid == 0 || ipid == 1) && hWeightFunc != nullptr && hWeightFunc_BW != nullptr) {
                             if (qinv_mix > 0.0 && qinv_mix < 2.0) { 
-                                weight = hWeightFunc->Interpolate(qinv_mix); 
+                                int bin = hWeightFunc->FindBin(qinv_mix);
+								weight = hWeightFunc->GetBinContent(bin);
+
+								int bin_BW = hWeightFunc_BW->FindBin(qinv_mix);
+								weight_BW = hWeightFunc_BW->GetBinContent(bin_BW);  
                             }
                         }
 
@@ -1430,6 +1439,9 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 										if(s==2){
 											hmass_mix_weigh[ipid][pairid]->Fill(massLL_mix, weight);
 											hqinv_mix_weigh[ipid][pairid]->Fill(qinv_mix, weight);
+
+											hmass_mix_weigh_BW[ipid][pairid]->Fill(massLL_mix, weight_BW);
+											hqinv_mix_weigh_BW[ipid][pairid]->Fill(qinv_mix, weight_BW);
 										}
 									}
 								}
@@ -1666,11 +1678,11 @@ void CorTreeAnalyzer::DefHistograms(){
 				for(int icut = 0; icut< 5; icut++){
 					TString nameMassS_cut = Form("hmass_same_%d_%s_%s_%s", icut, pidName[ipid], pairName[ipair], spinName7[ispin]);
                 	TString titleMassS_cut = Form("Same %d %s %s %s;M_{inv} (GeV/c^{2});Counts", icut, pidTitle[ipid], pairTitle[ipair], spinTitle7[ispin]);
-					hmass_same_cut[icut][ipid][ipair][ispin] = new TH1D(nameMassS_cut, titleMassS_cut, bin_m, 1.0, 5.5);
+					hmass_same_cut[icut][ipid][ipair][ispin] = new TH1D(nameMassS_cut, titleMassS_cut, 100, 2.23, 2.28);
 
 					TString nameMassM_cut = Form("hmass_mix_%d_%s_%s_%s", icut, pidName[ipid], pairName[ipair], spinName7[ispin]);
                 	TString titleMassM_cut = Form("Mix %d %s %s %s;M_{inv} (GeV/c^{2});Counts", icut, pidTitle[ipid], pairTitle[ipair], spinTitle7[ispin]);
-					hmass_mix_cut[icut][ipid][ipair][ispin] = new TH1D(nameMassM_cut, titleMassM_cut, bin_m, 1.0, 5.5);
+					hmass_mix_cut[icut][ipid][ipair][ispin] = new TH1D(nameMassM_cut, titleMassM_cut, 100, 2.23, 2.28);
 				}
 
 				// === Same Event ===
@@ -1715,8 +1727,11 @@ void CorTreeAnalyzer::DefHistograms(){
 				} // icent roop
 			}// ispin loop
 
-			hmass_mix_weigh[ipid][ipair] = new TH1D(Form("hmass_mix_weigh_%s_%s", pidName[ipid], pairName[ipair]), Form("Mix (weigh) %s %s;M_{inv} (GeV/c^{2});Counts", pidTitle[ipid], pairTitle[ipair]), 40, 2.23, 2.25);
+			hmass_mix_weigh[ipid][ipair] = new TH1D(Form("hmass_mix_weigh_%s_%s", pidName[ipid], pairName[ipair]), Form("Mix (weigh) %s %s;M_{inv} (GeV/c^{2});Counts", pidTitle[ipid], pairTitle[ipair]), 100, 2.23, 2.28);
 			hqinv_mix_weigh[ipid][ipair] = new TH1D(Form("hqinv_mix_weigh_%s_%s", pidName[ipid], pairName[ipair]), Form("Mix (weigh) %s %s;Q_{inv} (GeV/c);Counts", pidTitle[ipid], pairTitle[ipair]), bin_q, 0.0, 4.0);
+
+			hmass_mix_weigh_BW[ipid][ipair] = new TH1D(Form("hmass_mix_weigh_BW_%s_%s", pidName[ipid], pairName[ipair]), Form("Mix (weigh, BW) %s %s;M_{inv} (GeV/c^{2});Counts", pidTitle[ipid], pairTitle[ipair]), 100, 2.23, 2.28);
+			hqinv_mix_weigh_BW[ipid][ipair] = new TH1D(Form("hqinv_mix_weigh_BW_%s_%s", pidName[ipid], pairName[ipair]), Form("Mix (weigh, BW) %s %s;Q_{inv} (GeV/c);Counts", pidTitle[ipid], pairTitle[ipair]), bin_q, 0.0, 4.0);
 		} // ipair loop
 	} // ipid loop 
 
@@ -2259,9 +2274,16 @@ void CorTreeAnalyzer::WriteHistograms(){
 					hqinv_same_nocut[ipid][ipair][ispin][icent]->Write();
 					hqinv_mix_nocut[ipid][ipair][ispin][icent]->Write();
 					
-				}
-			}
-		}
+				} // icent loop
+			} // ispin loop
+
+			if( ipid == 0 || ipid == 1 ){
+                hmass_mix_weigh[ipid][ipair]->Write();
+                hqinv_mix_weigh[ipid][ipair]->Write();
+				hmass_mix_weigh_BW[ipid][ipair]->Write();
+                hqinv_mix_weigh_BW[ipid][ipair]->Write();
+            }
+		} // ipair loop
 	} // pid loop
 
 	/*// EP calibration

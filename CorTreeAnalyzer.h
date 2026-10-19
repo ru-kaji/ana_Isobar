@@ -278,8 +278,11 @@ public:
     TH1D *hmass_mix_low[3][4][7];
 
 	TH1D *hWeightFunc;
+	TH1D *hWeightFunc_BW;
 	TH1D *hmass_mix_weigh[3][4];
 	TH1D *hqinv_mix_weigh[3][4];
+	TH1D *hmass_mix_weigh_BW[3][4];
+	TH1D *hqinv_mix_weigh_BW[3][4];
 
 	// QA
 	TH2D *hDetaDphiStar1[3][3];

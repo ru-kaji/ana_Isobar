@@ -69,19 +69,11 @@ int main(int argc, char* argv[]){
 		return -1;
 	}
 
-	string test = inputFile.Data();
+  string test = inputFile.Data();
 	int ln = test.length();
-	//string runnum = test.substr( ln-13, ln-5 ); // assuming that filename is "runnumber.root"
-	string runnum = "0"; 
-if (ln >= 13) {
-    // 末尾から13文字目(ln-13)からスタートし、8文字分(数字の部分)を切り出す
-    runnum = test.substr( ln-13, 8 ); 
-} else {
-    cout << "Warning: input file name is too short to extract runnumber!" << endl;
-}
-  cout << "input=" << test << endl;
+	string runnum = test.substr( ln-12, 8 ); // assuming that filename is "runnumber.root"
+	cout << "input=" << test << endl;
 	cout << "runnum=" << runnum << endl;
-
 
 	TChain *tch = new TChain("tree");
 	string tmp;

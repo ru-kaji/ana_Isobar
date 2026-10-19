@@ -371,23 +371,23 @@ void plotCF_isobar(TString fileName) {
     for(int ipid = 0; ipid < 4; ipid++) {
         for(int ispin = 0; ispin < 7; ispin++){
             for(int ipair = 0; ipair < 4; ipair++){
-                hSame_0to20per[ipid][ipair][ispin]  =  (TH1D*)MergeHist(hSame[4][ipid][ipair][ispin][0], hSame[4][ipid][ipair][ispin][1]);
-                hMix_0to20per[ipid][ipair][ispin]   =  (TH1D*)MergeHist(hMix[4][ipid][ipair][ispin][0], hMix[4][ipid][ipair][ispin][1]);
+                hSame_0to20per[ipid][ipair][ispin]  =  (TH1D*)MergeHist(hSame[3][ipid][ipair][ispin][0], hSame[3][ipid][ipair][ispin][1]);
+                hMix_0to20per[ipid][ipair][ispin]   =  (TH1D*)MergeHist(hMix[3][ipid][ipair][ispin][0], hMix[3][ipid][ipair][ispin][1]);
 
-                hSame_20to40per[ipid][ipair][ispin]    = (TH1D*)MergeHist(hSame[4][ipid][ipair][ispin][2], hSame[4][ipid][ipair][ispin][3]);
-                hMix_20to40per[ipid][ipair][ispin]     = (TH1D*)MergeHist(hMix[4][ipid][ipair][ispin][2], hMix[4][ipid][ipair][ispin][3]);
-                hSame_20to50per[ipid][ipair][ispin] = (TH1D*)MergeHist(hSame[4][ipid][ipair][ispin][4], hSame_20to40per[ipid][ipair][ispin]);
-                hMix_20to50per[ipid][ipair][ispin]  = (TH1D*)MergeHist(hMix[4][ipid][ipair][ispin][4], hMix_20to40per[ipid][ipair][ispin]);
+                hSame_20to40per[ipid][ipair][ispin]    = (TH1D*)MergeHist(hSame[3][ipid][ipair][ispin][2], hSame[3][ipid][ipair][ispin][3]);
+                hMix_20to40per[ipid][ipair][ispin]     = (TH1D*)MergeHist(hMix[3][ipid][ipair][ispin][2], hMix[3][ipid][ipair][ispin][3]);
+                hSame_20to50per[ipid][ipair][ispin] = (TH1D*)MergeHist(hSame[3][ipid][ipair][ispin][4], hSame_20to40per[ipid][ipair][ispin]);
+                hMix_20to50per[ipid][ipair][ispin]  = (TH1D*)MergeHist(hMix[3][ipid][ipair][ispin][4], hMix_20to40per[ipid][ipair][ispin]);
 
-                hSame_50to70per[ipid][ipair][ispin] = (TH1D*)MergeHist(hSame[4][ipid][ipair][ispin][5], hSame[4][ipid][ipair][ispin][6]);
-                hMix_50to70per[ipid][ipair][ispin]  = (TH1D*)MergeHist(hMix[4][ipid][ipair][ispin][5], hMix[4][ipid][ipair][ispin][6]);
-                hSame_50to80per[ipid][ipair][ispin] = (TH1D*)MergeHist(hSame[4][ipid][ipair][ispin][7], hSame_50to70per[ipid][ipair][ispin]);
-                hMix_50to80per[ipid][ipair][ispin]  = (TH1D*)MergeHist(hMix[4][ipid][ipair][ispin][7], hMix_50to70per[ipid][ipair][ispin]);
+                hSame_50to70per[ipid][ipair][ispin] = (TH1D*)MergeHist(hSame[3][ipid][ipair][ispin][5], hSame[3][ipid][ipair][ispin][6]);
+                hMix_50to70per[ipid][ipair][ispin]  = (TH1D*)MergeHist(hMix[3][ipid][ipair][ispin][5], hMix[3][ipid][ipair][ispin][6]);
+                hSame_50to80per[ipid][ipair][ispin] = (TH1D*)MergeHist(hSame[3][ipid][ipair][ispin][7], hSame_50to70per[ipid][ipair][ispin]);
+                hMix_50to80per[ipid][ipair][ispin]  = (TH1D*)MergeHist(hMix[3][ipid][ipair][ispin][7], hMix_50to70per[ipid][ipair][ispin]);
                 
                 hSame_20to80per[ipid][ipair][ispin] = (TH1D*)MergeHist(hSame_50to80per[ipid][ipair][ispin], hSame_20to50per[ipid][ipair][ispin]);
                 hMix_20to80per[ipid][ipair][ispin]  = (TH1D*)MergeHist(hMix_50to80per[ipid][ipair][ispin],  hMix_20to50per[ipid][ipair][ispin]);
-                hSame_10to80per[ipid][ipair][ispin] = (TH1D*)MergeHist(hSame[4][ipid][ipair][ispin][1], hSame_20to80per[ipid][ipair][ispin]);
-                hMix_10to80per[ipid][ipair][ispin]  = (TH1D*)MergeHist(hMix[4][ipid][ipair][ispin][1],  hMix_20to80per[ipid][ipair][ispin]);
+                hSame_10to80per[ipid][ipair][ispin] = (TH1D*)MergeHist(hSame[3][ipid][ipair][ispin][1], hSame_20to80per[ipid][ipair][ispin]);
+                hMix_10to80per[ipid][ipair][ispin]  = (TH1D*)MergeHist(hMix[3][ipid][ipair][ispin][1],  hMix_20to80per[ipid][ipair][ispin]);
             }
         }
     }
@@ -421,7 +421,7 @@ void plotCF_isobar(TString fileName) {
     TCanvas *c_cf1, *c_cf2, *c_cf3, *c_cf4, *c_cf5, *c_cf6, *c_cf6_2, *c_cf7[4], *c_cf8, *c_cf9, *c_cf10;
     
 
-        if (!hSame[4][0][0][0][0] || !hSame[4][1][1][0][1] || !hSame[0][2][0][1][8]) {
+        if (!hSame[3][0][0][0][0] || !hSame[3][1][1][0][1] || !hSame[3][2][0][1][8]) {
             // << "Warning: hSame is empty or null!" << std::endl;
         }
 
@@ -436,7 +436,7 @@ void plotCF_isobar(TString fileName) {
                 
                 int ispin = 0;
 
-                CFAnalyzer ana1(hSame[4][ipid][ipair][ispin][8], hMix[4][ipid][ipair][ispin][8], pidName[ipid]);
+                CFAnalyzer ana1(hSame[3][ipid][ipair][ispin][8], hMix[3][ipid][ipair][ispin][8], pidName[ipid]);
                 ana1.Calculate(0.5, 0.8);
 
                 c_cf1->cd(ipid+ipair*4+1);
@@ -460,7 +460,7 @@ void plotCF_isobar(TString fileName) {
 
                 int ipair = 0;
 
-                CFAnalyzer ana2(hSame[4][ipid][ipair][ispin][8], hMix[4][ipid][ipair][ispin][8], pidName[ipid]);
+                CFAnalyzer ana2(hSame[3][ipid][ipair][ispin][8], hMix[3][ipid][ipair][ispin][8], pidName[ipid]);
                 ana2.Calculate(0.5, 0.8);
 
                 c_cf2->cd(ipid+ispin*4+1);
@@ -481,10 +481,10 @@ void plotCF_isobar(TString fileName) {
 
         for(int ipid = 0; ipid < 4; ipid++) {
             c_cf3 -> cd(ipid+1);
-            CFAnalyzer ana3_SS(hSame[4][ipid][0][0][8], hMix[4][ipid][0][0][8], pidName[ipid], pL[0], pA[0]);
-            CFAnalyzer ana3_SB(hSame[4][ipid][1][0][8], hMix[4][ipid][1][0][8], pidName[ipid], pL[0], pA[0]);
-            CFAnalyzer ana3_BS(hSame[4][ipid][2][0][8], hMix[4][ipid][2][0][8], pidName[ipid], pL[0], pA[0]);
-            CFAnalyzer ana3_BB(hSame[4][ipid][3][0][8], hMix[4][ipid][3][0][8], pidName[ipid], pL[0], pA[0]);
+            CFAnalyzer ana3_SS(hSame[3][ipid][0][0][8], hMix[3][ipid][0][0][8], pidName[ipid], pL[0], pA[0]);
+            CFAnalyzer ana3_SB(hSame[3][ipid][1][0][8], hMix[3][ipid][1][0][8], pidName[ipid], pL[0], pA[0]);
+            CFAnalyzer ana3_BS(hSame[3][ipid][2][0][8], hMix[3][ipid][2][0][8], pidName[ipid], pL[0], pA[0]);
+            CFAnalyzer ana3_BB(hSame[3][ipid][3][0][8], hMix[3][ipid][3][0][8], pidName[ipid], pL[0], pA[0]);
 
             // 規格化
             ana3_SS.Calculate(0.5, 0.8);
@@ -497,8 +497,8 @@ void plotCF_isobar(TString fileName) {
             if(!hNormCorr_All) continue;
 
             hSave_CF_All[ipid]   = (TH1D*)hNormCorr_All->Clone(Form("hCF_All_%s", pidName[ipid]));
-            hSave_Same_All[ipid] = (TH1D*)hSame[4][ipid][0][0][8]->Clone(Form("hSame_All_%s", pidName[ipid]));
-            hSave_Mix_All[ipid]  = (TH1D*)hMix[4][ipid][0][0][8]->Clone(Form("hMix_All_%s", pidName[ipid]));
+            hSave_Same_All[ipid] = (TH1D*)hSame[3][ipid][0][0][8]->Clone(Form("hSame_All_%s", pidName[ipid]));
+            hSave_Mix_All[ipid]  = (TH1D*)hMix[3][ipid][0][0][8]->Clone(Form("hMix_All_%s", pidName[ipid]));
             
             // 描画設定
             hNormCorr_All->SetTitle(Form("%s;Q_{inv} (GeV/c);C(Q_{inv})", pidName[ipid]));
@@ -528,22 +528,22 @@ void plotCF_isobar(TString fileName) {
 
         for(int ipid = 0; ipid < 4; ipid++) {
 
-            if (!hSame[4][ipid][0][1][8] || !hMix[4][ipid][0][1][8]) {
+            if (!hSame[3][ipid][0][1][8] || !hMix[3][ipid][0][1][8]) {
                 std::cout << "❌ ERROR: c_cf4 - hSame[" << ipid << "][0][1][8] または hMix が nullptr です！" << std::endl;
-                std::cout << "   hSame[" << ipid << "][0][1][8] = " << hSame[4][ipid][0][1][8] << std::endl;
-                std::cout << "   hMix[" << ipid << "][0][1][8] = " << hMix[4][ipid][0][1][8] << std::endl;
+                std::cout << "   hSame[" << ipid << "][0][1][8] = " << hSame[3][ipid][0][1][8] << std::endl;
+                std::cout << "   hMix[" << ipid << "][0][1][8] = " << hMix[3][ipid][0][1][8] << std::endl;
                 continue;
             }
 
-            CFAnalyzer ana4_Para_SS(hSame[4][ipid][0][1][8], hMix[4][ipid][0][1][8], pidName[ipid]);
-            CFAnalyzer ana4_Para_SB(hSame[4][ipid][1][1][8], hMix[4][ipid][1][1][8], pidName[ipid]);
-            CFAnalyzer ana4_Para_BS(hSame[4][ipid][2][1][8], hMix[4][ipid][2][1][8], pidName[ipid]);
-            CFAnalyzer ana4_Para_BB(hSame[4][ipid][3][1][8], hMix[4][ipid][3][1][8], pidName[ipid]);
+            CFAnalyzer ana4_Para_SS(hSame[3][ipid][0][1][8], hMix[3][ipid][0][1][8], pidName[ipid]);
+            CFAnalyzer ana4_Para_SB(hSame[3][ipid][1][1][8], hMix[3][ipid][1][1][8], pidName[ipid]);
+            CFAnalyzer ana4_Para_BS(hSame[3][ipid][2][1][8], hMix[3][ipid][2][1][8], pidName[ipid]);
+            CFAnalyzer ana4_Para_BB(hSame[3][ipid][3][1][8], hMix[3][ipid][3][1][8], pidName[ipid]);
 
-            CFAnalyzer ana4_Anti_SS(hSame[4][ipid][0][2][8], hMix[4][ipid][0][2][8], pidName[ipid]);
-            CFAnalyzer ana4_Anti_SB(hSame[4][ipid][1][2][8], hMix[4][ipid][1][2][8], pidName[ipid]);
-            CFAnalyzer ana4_Anti_BS(hSame[4][ipid][2][2][8], hMix[4][ipid][2][2][8], pidName[ipid]);
-            CFAnalyzer ana4_Anti_BB(hSame[4][ipid][3][2][8], hMix[4][ipid][3][2][8], pidName[ipid]);
+            CFAnalyzer ana4_Anti_SS(hSame[3][ipid][0][2][8], hMix[3][ipid][0][2][8], pidName[ipid]);
+            CFAnalyzer ana4_Anti_SB(hSame[3][ipid][1][2][8], hMix[3][ipid][1][2][8], pidName[ipid]);
+            CFAnalyzer ana4_Anti_BS(hSame[3][ipid][2][2][8], hMix[3][ipid][2][2][8], pidName[ipid]);
+            CFAnalyzer ana4_Anti_BB(hSame[3][ipid][3][2][8], hMix[3][ipid][3][2][8], pidName[ipid]);
 
             std::cout << "✅ c_cf4: pid= " << pidName[ipid] << " - ヒストグラム読み込み成功" << std::endl;
 
@@ -619,8 +619,8 @@ void plotCF_isobar(TString fileName) {
             for(int ipid = 0; ipid < 4; ipid++) {
             
 
-                ana5_Para[ipid][ipair] = new CFAnalyzer(hSame[4][ipid][ipair][1][8], hMix[4][ipid][ipair][1][8], pidName[ipid], pL[0], pA[0]); 
-                ana5_Anti[ipid][ipair] = new CFAnalyzer(hSame[4][ipid][ipair][2][8], hMix[4][ipid][ipair][2][8], pidName[ipid], pL[0], pA[0]);
+                ana5_Para[ipid][ipair] = new CFAnalyzer(hSame[3][ipid][ipair][1][8], hMix[3][ipid][ipair][1][8], pidName[ipid], pL[0], pA[0]); 
+                ana5_Anti[ipid][ipair] = new CFAnalyzer(hSame[3][ipid][ipair][2][8], hMix[3][ipid][ipair][2][8], pidName[ipid], pL[0], pA[0]);
 
                 ana5_Para[ipid][ipair]->Calculate(0.5, 0.8); 
                 ana5_Anti[ipid][ipair]->Calculate(0.5, 0.8);
@@ -758,7 +758,7 @@ void plotCF_isobar(TString fileName) {
             c_cf6->cd(ipid+5);
         
             hAnti_nocut_Uncorr->SetTitle(Form("cos#theta_{12} < 0 (Anti-Parallel), %s;Q_{inv} (GeV/c);C(Q_{inv})", pidName[ipid]));
-            hAnti_nocut_Uncorr->GetXaxis()->SetRangeUser(0.0, 2.0); 
+            hAnti_nocut_Uncorr->GetXaxis()->SetRangeUser(0.0, 0.5); 
             hAnti_nocut_Uncorr->SetMinimum(0.4); 
             hAnti_nocut_Uncorr->SetMaximum(1.5);
 
@@ -823,14 +823,14 @@ void plotCF_isobar(TString fileName) {
         c_cf6_2 = new TCanvas("c_cf6_2", "CF6_2", 1200, 600);
         c_cf6_2->Divide(4, 2);
 
-        CFAnalyzer* ana_cut_Para[5][4][4];   CFAnalyzer* ana_cut_Anti[5][4][4];
+        CFAnalyzer* ana_cut_Para[4][4][4];   CFAnalyzer* ana_cut_Anti[4][4][4];
         CFAnalyzer* ana_Nocut_Para[4][4];    CFAnalyzer* ana_Nocut_Anti[4][4];
 
-        const char* icutName[5] = {"pp", "#pi#pi", "p#pi", "#pip", "splitting"};
+        const char* icutName[4] = {"pp", "#pi#pi", "p#pi", "#pip"};
 
         for(int ipair = 0; ipair < 4; ipair++) {
             for(int ipid = 0; ipid < 4; ipid++) {
-                for(int icut = 0; icut < 5; icut++) {
+                for(int icut = 0; icut < 4; icut++) {
             
                 ana_cut_Para[icut][ipid][ipair] = new CFAnalyzer(hSame[icut][ipid][ipair][1][8], hMix[icut][ipid][ipair][1][8], Form("%s_%s", pidName[ipid], icutName[icut]), pL[0], pA[0]); 
                 ana_cut_Anti[icut][ipid][ipair] = new CFAnalyzer(hSame[icut][ipid][ipair][2][8], hMix[icut][ipid][ipair][2][8], Form("%s_%s", pidName[ipid], icutName[icut]), pL[0], pA[0]);
@@ -846,11 +846,11 @@ void plotCF_isobar(TString fileName) {
 
             }
         }
-        TH1D *hPara_cut[5], *hAnti_cut[5];
+        TH1D *hPara_cut[4], *hAnti_cut[4];
         TH1D *hPara_nocut, *hAnti_nocut;
 
         for(int ipid = 0; ipid < 4; ipid++) {
-            for(int icut = 0; icut < 5; icut++) {
+            for(int icut = 0; icut < 4; icut++) {
             
                 ana_cut_Para[icut][ipid][0]->CorrectCF(ana_cut_Para[icut][ipid][1]->GetNorm(), ana_cut_Para[icut][ipid][2]->GetNorm(), ana_cut_Para[icut][ipid][3]->GetNorm());
                 ana_cut_Anti[icut][ipid][0]->CorrectCF(ana_cut_Anti[icut][ipid][1]->GetNorm(), ana_cut_Anti[icut][ipid][2]->GetNorm(), ana_cut_Anti[icut][ipid][3]->GetNorm());
@@ -890,10 +890,10 @@ void plotCF_isobar(TString fileName) {
             hPara_nocut->Draw("PE");
             SetAxisCF(hPara_nocut);
 
-            int cutColors[5] = {kMagenta, kOrange+2, kBlue, kGreen+2, kRed};
-            int cutStyles[5] = {25, 26, 27, 28, 24}; // Marker styles for cuts
+            int cutColors[4] = {kMagenta, kOrange+2, kBlue, kGreen+2};
+            int cutStyles[4] = {25, 26, 27, 28}; // Marker styles for cuts
 
-            for(int icut = 0; icut < 5; icut++) {
+            for(int icut = 0; icut < 4; icut++) {
                 hPara_cut[icut]->SetMarkerStyle(cutStyles[icut]);
                 hPara_cut[icut]->SetMarkerSize(0.6);
                 hPara_cut[icut]->SetMarkerColor(cutColors[icut]);
@@ -910,7 +910,6 @@ void plotCF_isobar(TString fileName) {
             legC1_1->AddEntry(hPara_cut[1], "#pi#pi", "lp");
             legC1_1->AddEntry(hPara_cut[2], "p#pi", "lp");
             legC1_1->AddEntry(hPara_cut[3], "#pip", "lp");
-            legC1_1->AddEntry(hPara_cut[4], "spliting", "lp"); // 変える
             legC1_1->Draw();
             
             TLine *line_1 = new TLine(0.0, 1.0, 0.5, 1.0);
@@ -934,7 +933,7 @@ void plotCF_isobar(TString fileName) {
             hAnti_nocut->Draw("PE");
             SetAxisCF(hAnti_nocut);
 
-            for(int icut = 0; icut < 5; icut++) {
+            for(int icut = 0; icut < 4; icut++) {
                 hAnti_cut[icut]->SetMarkerStyle(cutStyles[icut]);
                 hAnti_cut[icut]->SetMarkerSize(0.7);
                 hAnti_cut[icut]->SetMarkerColor(cutColors[icut]);
@@ -951,7 +950,6 @@ void plotCF_isobar(TString fileName) {
             legC2_1->AddEntry(hAnti_cut[1], "#pi#pi", "lp");
             legC2_1->AddEntry(hAnti_cut[2], "p#pi", "lp");
             legC2_1->AddEntry(hAnti_cut[3], "#pip", "lp");
-            legC2_1->AddEntry(hAnti_cut[4], "#spliting", "lp"); // 変える
             legC2_1->Draw();
             line_1->Draw();
 
@@ -1063,7 +1061,7 @@ void plotCF_isobar(TString fileName) {
             for(int ispin = 3; ispin < 7; ispin++) {
                 for(int ipair = 0; ipair < 4; ipair++){
 
-                ana9[ispin][ipair] = new CFAnalyzer(hSame[4][ipid][ipair][ispin][8], hMix[4][ipid][ipair][ispin][8], Form("%s, %s, %s", pidName[ipid], pairName[ipair], spinName7[ispin]), pL[0], pA[0]); 
+                ana9[ispin][ipair] = new CFAnalyzer(hSame[3][ipid][ipair][ispin][8], hMix[3][ipid][ipair][ispin][8], Form("%s, %s, %s", pidName[ipid], pairName[ipair], spinName7[ispin]), pL[0], pA[0]); 
                 ana9[ispin][ipair]->Calculate(0.5, 0.8); 
                 }
 

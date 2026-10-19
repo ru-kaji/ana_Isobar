@@ -77,7 +77,8 @@ void DrawCanvas_isobar(TString fileName){
 	//TH1F *hDetaDphi1[3], *hDetaDphi2[3], *hDetaDphi3[3], *hDetaDphi1_mix[3], *hDetaDphi2_mix[3], *hDetaDphi3_mix[3];
 	TH1D *hmass_same[5][3][4][7], *hmass_mix[5][3][4][7];
 	TH1D *hqinv_same[5][3][4][7][9], *hqinv_mix[5][3][4][7][9];
-	TH1D *hmass_same_low[3][3][7], *hmass_mix_low[3][3][7];
+	TH1D *hmass_same_low[3][4][7], *hmass_mix_low[3][4][7];
+	TH1D *hmass_mix_weigh[3][4], *hqinv_mix_weigh[3][4];
 
 	const char* dgPairName[4] = {"pp", "pipi", "ppi", "pip"};
 	const char* dgPairName_2D[4] = {"p-p", "#pi-#pi", "p-#pi", "#pi-p"};
@@ -167,10 +168,17 @@ void DrawCanvas_isobar(TString fileName){
 					hmass_same_low[ipid][ipair][ispin] = (TH1D*)fin->Get(nameMassS_low);
                 	hmass_mix_low[ipid][ipair][ispin]  = (TH1D*)fin->Get(nameMassM_low);
 				} // end of spin loop
+
+				if( ipid == 0 || ipid == 1) {
+					hmass_mix_weigh[ipid][ipair] = (TH1D*)fin->Get(Form("hmass_mix_weigh_%s_%s", pidName[ipid], pairName[ipair]));
+					hqinv_mix_weigh[ipid][ipair] = (TH1D*)fin->Get(Form("hqinv_mix_weigh_%s_%s", pidName[ipid], pairName[ipair]));
+					if (!hmass_mix_weigh[ipid][ipair]) std::cout << "!!! Missing: hmass_mix_weigh" << pidName[ipid] << " !!!" << std::endl;
+					if (!hqinv_mix_weigh[ipid][ipair])  std::cout << "!!! Missing: hqinv_mix_weigh" << pidName[ipid] << " !!!" << std::endl;
+				}
 			} // end of pair loop
 		} // end of pid loop
 			
-		TCanvas *c3[3][3], *c4[3], *c5[3], *c6[3], *c7, *c8[3], *c9[3], *c10, *c11;
+		TCanvas *c3[3][3], *c4[3], *c5[3], *c6[3], *c7, *c8[3], *c9[3], *c10, *c11, *c_weigh[2];
 	
 	gStyle->SetPadBottomMargin(0.14);
 	gStyle->SetPadLeftMargin(0.15);
@@ -739,6 +747,65 @@ void DrawCanvas_isobar(TString fileName){
 			line2->SetLineWidth(2);
 			line2->Draw("same");
 		}*/
+
+	// ====================================================================
+	//  c_weigh: Same - Mix(weight)
+	// ====================================================================	
+	for(int ipid = 0; ipid < 2; ipid++){ // 0:LL, 1:AA
+		
+		c_weigh[ipid] = new TCanvas(Form("c_weigh_%s", pidName[ipid]), Form("Weighted M_inv %s", pidName[ipid]), 600, 300);
+		c_weigh[ipid]->Divide(2, 1);
+
+		TH1D *hSame_for_weigh = hmass_same[3][ipid][0][2];TH1D *hMix_noweigh = hmass_mix[3][ipid][0][2];
+		TH1D *hMix_for_weigh  = hmass_mix_weigh[ipid][0];
+		if(!hSame_for_weigh || !hMix_for_weigh) {
+			std::cout << "Skip weighted mass plot for ipid=" << ipid << " (missing hist)" << std::endl;
+			continue;
+		}
+
+		if (hSame_for_weigh->GetSumw2N() == 0) hSame_for_weigh->Sumw2();
+		if (hMix_for_weigh->GetSumw2N() == 0)  hMix_for_weigh->Sumw2();
+
+		// 【修正】FindBinがオーバーフロービンを返さないよう、上限を少しだけ内側（例: 2.2499）にする
+		TH1 *hMixWeigh_scaled = ScaleHist(hSame_for_weigh, hMix_for_weigh, 2.24, 2.2499);
+		TH1 *hMixnoWeigh_scaled = ScaleHist(hSame_for_weigh, hMix_noweigh, 2.24, 2.2499);
+		c_weigh[ipid]->cd(1);
+		hSame_for_weigh->Draw();
+		hMixWeigh_scaled->SetLineColor(kRed);
+		hMixWeigh_scaled->Draw("same");
+
+		TH1 *hDiff = (TH1*)hSame_for_weigh->Clone(Form("hmass_diff_weigh_%s", pidName[ipid]));
+		hDiff->Add(hMixWeigh_scaled, -1.0);
+
+		TH1 *hDiff_noweigh = (TH1*)hSame_for_weigh->Clone(Form("hmass_diff_noweigh_%s", pidName[ipid]));
+		hDiff_noweigh->Add(hMixnoWeigh_scaled, -1.0);
+
+		// 5. 描画
+		hDiff->SetTitle(Form("(Same - Mix_{weight}) %s", pidName[ipid]));
+		hDiff->SetXTitle("M_{inv} (GeV/c^{2})");
+		hDiff->SetYTitle("Counts");
+		hDiff->SetMarkerStyle(20);
+		hDiff->SetMarkerSize(0.8);
+		hDiff->SetMarkerColor(kRed);
+		hDiff->SetLineColor(kRed);
+		hDiff->GetYaxis()->SetRangeUser(-500, 500);
+		
+		
+		c_weigh[ipid]->cd(2);
+		hDiff->Draw("PE");
+		hDiff_noweigh->SetLineColor(kBlue);
+		hDiff_noweigh->SetMarkerColor(kBlue);
+		hDiff_noweigh->Draw("PE same");
+
+
+		// ゼロのラインを引く
+		TLine *line = new TLine(hDiff->GetXaxis()->GetXmin(), 0.0, hDiff->GetXaxis()->GetXmax(), 0.0);
+		line->SetLineStyle(2);
+		line->SetLineColor(kBlack);
+		line->Draw("same");
+
+	}
+
 
 	c3_ratio_pid->SaveAs(Form("h2D_isobar_pid_%.1f.pdf", R_TPC));
 

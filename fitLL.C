@@ -609,12 +609,22 @@ void FitAngle() {
     weight_Anti->SetLineStyle(2);
     weight_Anti->Draw("same");
 
+	// ☆ 重み関数の重ね書き (シグナル項なし)
+    TF1 *weight_BW_Anti = new TF1("weight_BW_Anti", func_withBW, 0.01, 0.6, 12);
+    for(int i = 0; i < 12; i++) {
+        weight_BW_Anti->SetParameter(i, fit_Anti->GetParameter(i));
+    }
+    weight_BW_Anti->SetLineColor(kGreen+2);
+    weight_BW_Anti->SetLineStyle(2);
+    weight_BW_Anti->Draw("same");
+
 	TLegend *leg2 = new TLegend(0.45, 0.2, 0.85, 0.4);
     leg2->SetBorderSize(0);
     leg2->SetFillStyle(0);
     leg2->AddEntry(hC2_Anti, "Data", "lp");
     leg2->AddEntry(fit_Anti, "LL+Baseline+BW", "l");
     leg2->AddEntry(weight_Anti, "LL+Baseline", "l");
+    leg2->AddEntry(weight_BW_Anti, "LL+Baseline+BW", "l");
     leg2->Draw();
 
     // ========================================================
@@ -656,6 +666,14 @@ void FitAngle() {
         hWeight->SetBinContent(i, weight_Anti->Eval(q));
     }
     hWeight->Write();
+
+	TH1D *hWeight_BW = new TH1D("hWeight_BW", "Weight Function for Mix", 2000, 0.0, 2.0);
+    for(int i = 1; i <= 2000; i++){
+        double q = hWeight_BW->GetBinCenter(i);
+        hWeight_BW->SetBinContent(i, weight_BW_Anti->Eval(q));
+    }
+    hWeight_BW->Write();
     fOutWeight->Close();
+
     std::cout << "✅ Saved Weight Function to weight_func.root" << std::endl;
 }
