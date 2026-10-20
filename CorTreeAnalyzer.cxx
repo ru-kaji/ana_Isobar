@@ -90,7 +90,7 @@ Int_t CorTreeAnalyzer::Init()
 
 	// Event planes and flow vectors
 	// -------------------------------------------------------
-	
+	/*
 	// Topological cuts
 	// -------------------------------------------------------
 	// 0-10%
@@ -124,6 +124,30 @@ Int_t CorTreeAnalyzer::Init()
 		mDcaPi[ict][2] = 1.5;  
 		mDcaV0[ict][2] = 0.4;  //元は1.0
 		mDL   [ict][2] = 4.0;  
+		mDcaDh[ict][2] = 1.0;
+	}*/
+	
+	// Kehao's topological cuts
+	for( int ict=0; ict<8; ict++){
+		// 0: default cut (PDFの要件に準拠)
+		mDcaP[ict][0]  = 0.6;  // dau1 DCA > 0.6
+		mDcaPi[ict][0] = 1.5;  // dau2 DCA > 1.5
+		mDcaV0[ict][0] = 0.4;  // Lambda DCA < 0.4
+		mDL[ict][0]    = 5.0;  // Lambda decay length > 5.0
+		mDcaDh[ict][0] = 0.8;  // DCA between dau1 to dau2 < 0.8
+
+		// 1: strict cut (必要に応じて調整、ここでは旧0-10%の値をプレースホルダーとして残す例)
+		mDcaP[ict][1]  = 0.6;
+		mDcaPi[ict][1] = 1.7;
+		mDcaV0[ict][1] = 0.4;
+		mDL[ict][1]    = 7.0;
+		mDcaDh[ict][1] = 0.8;
+
+		// 2: fixed cut
+		mDcaP[ict][2]  = 0.5;  
+		mDcaPi[ict][2] = 1.5;  
+		mDcaV0[ict][2] = 0.4;  
+		mDL[ict][2]    = 4.0;  
 		mDcaDh[ict][2] = 1.0;
 	}
 
@@ -246,11 +270,11 @@ bool CorTreeAnalyzer::IsPairClose_pp(float eta1, float phi1, float eta2, float p
 		float cut_eta = 0.02;
 		float cut_phi = 0.03;
 
-		float r2 = (deta * deta) / (cut_eta * cut_eta) + (dphi * dphi) / (cut_phi * cut_phi);
-	
-		if (r2 < 1.0) return true; 
+		//float r2 = (deta * deta) / (cut_eta * cut_eta) + (dphi * dphi) / (cut_phi * cut_phi);
+		//if (r2 < 1.0) return true; 
+
+		if( deta < 0.02 && fabs(dphi) < 0.03 ) return true; // Kehao cut
 	}
-	//if(deta < 0.02 && fabs(dphi) < 0.03) return true; // Kehao cut
 
     return false;
 }
@@ -1123,7 +1147,7 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 					hqinv_same_cut[0][ipid][pairid][s][iCent]->Fill(qinv_same);
 					hqinv_same_cut[0][ipid][pairid][s][8]->Fill(qinv_same);
 				}
-			
+			/*
 			if( IsPairClose_pipi(etaB1[pid1], phiStarB1[pid1], etaB2[pid2], phiStarB2[pid2], ipid) ) continue; // pi - pi
 				 for (int s : spinid) {
 					hmass_same_cut[1][ipid][pairid][s]->Fill(massLL);
@@ -1143,7 +1167,7 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 					hmass_same_cut[3][ipid][pairid][s]->Fill(massLL);
 					hqinv_same_cut[3][ipid][pairid][s][iCent]->Fill(qinv_same);
 					hqinv_same_cut[3][ipid][pairid][s][8]->Fill(qinv_same);
-				}
+				}*/
 /*
 			// check Spliting
 			if( ipid == 2){
@@ -1387,7 +1411,7 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 								hqinv_mix_nocut[ipid][pairid][s][8]->Fill(qinv_mix);
 							}
 						}
-						
+						/*
 						// previous pair-close check moved earlier to avoid inconsistent fills between spin bins
 						if( IsPairClose_pp(dgAeta[pid_curr][i], phiStarP_curr, etaP_past, phiStarP_past, ipid) ) continue; // p - p
 							 if (pairid >= 0 && pairid <= 3) {
@@ -1445,7 +1469,7 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 										}
 									}
 								}
-							}
+							}*/
 						/*
 						if(ipid == 2){
 							if( IsSplitCheck(dgAeta[pid_curr][i], phiStarP_curr, etaPi_past, phiStarPi_past)) continue; // p - pi
