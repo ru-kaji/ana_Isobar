@@ -51,7 +51,7 @@ const Float_t sgm_para_Lm[3][3] = {
 };
 
 // The constructor. Initialize data members here.
-CorTreeAnalyzer::CorTreeAnalyzer() : mEventCounter(0), mFile(0), mRunNumber(0), ANA_MODE(0), mTrkEff(0), mSelfCor(0), mCalibMode(0), mTotalEvents(0)
+CorTreeAnalyzer::CorTreeAnalyzer() : mTotalEvents(0), mEventCounter(0), mFile(0), mRunNumber(0), ANA_MODE(0), mTrkEff(0), mSelfCor(0), mCalibMode(0)
 { 
 	mFileName = "muAnalysis.root";
 	gRandom->SetSeed(0);
@@ -59,7 +59,7 @@ CorTreeAnalyzer::CorTreeAnalyzer() : mEventCounter(0), mFile(0), mRunNumber(0), 
 	mColl = 0;
 }
 
-CorTreeAnalyzer::CorTreeAnalyzer(const Char_t *outfile, EventClass* in_p_eve) : mEventCounter(0), mFile(0), mRunNumber(0), ANA_MODE(0), mTrkEff(0), mSelfCor(0), mCalibMode(0)
+CorTreeAnalyzer::CorTreeAnalyzer(const Char_t *outfile, EventClass* in_p_eve) : mTotalEvents(0), mEventCounter(0), mFile(0), mRunNumber(0), ANA_MODE(0), mTrkEff(0), mSelfCor(0), mCalibMode(0)
 { 
 	mFileName = outfile;
 	gRandom->SetSeed(0);
@@ -235,10 +235,11 @@ bool CorTreeAnalyzer::IsPairClose_pp(float eta1, float phi1, float eta2, float p
     float dphi = TVector2::Phi_mpi_pi(phi1 - phi2); // -pi ~ pi の範囲で差分を取る
 
 	if(ipid == 2){
-		if(deta < 0.025 && fabs(dphi)<0.05 ) return true;
+		if(deta > 0.03) return false;
+		//if(deta < 0.025 && fabs(dphi)<0.05 ) return true;
 
 		//if( dphi < -0.1 && dphi > -0.4 ) { //R_TPC=0.7
-		if( -0.08 < dphi && dphi < 0.16 ) {   //R_TPC=1.5
+		if( -0.1 < dphi && dphi < 0.15 ) {   //R_TPC=1.4
 			return true; // too close (Merging or Splitting)
 		}
 	}else if(ipid == 0 || ipid == 1){
@@ -257,13 +258,13 @@ bool CorTreeAnalyzer::IsPairClose_pp(float eta1, float phi1, float eta2, float p
 bool CorTreeAnalyzer::IsPairClose_pipi(float eta1, float phi1, float eta2, float phi2, int ipid) {
     
     float deta = fabs(eta1 - eta2);
-	if(deta >= 0.05) return false;
+	//if(deta >= 0.05) return false;
 
     float dphi = TVector2::Phi_mpi_pi(phi1 - phi2); // -pi ~ pi の範囲で差分を取る
 	
 	if(ipid == 0 || ipid == 1){
-		float cut_eta = 0.03;
-		float cut_phi = 0.03;
+		float cut_eta = 0.06;
+		float cut_phi = 0.06;
 
 		float r2 = (deta * deta) / (cut_eta * cut_eta) + (dphi * dphi) / (cut_phi * cut_phi);
 	
@@ -276,12 +277,12 @@ bool CorTreeAnalyzer::IsPairClose_pipi(float eta1, float phi1, float eta2, float
 bool CorTreeAnalyzer::IsPairClose_ppi(float eta1, float phi1, float eta2, float phi2, int ipid) {
     
     float deta = fabs(eta1 - eta2);
-	if(deta >= 0.02) return false;
+	//if(deta >= 0.02) return false;
 
     float dphi = TVector2::Phi_mpi_pi(phi1 - phi2); // -pi ~ pi の範囲で差分を取る
 
 	if(ipid == 2){
-		if(0.02<dphi && dphi<0.04) return true;
+		if(-0.02<deta && deta<0.03 && fabs(dphi)<0.04) return true;
 	}
 	
     return false;
@@ -290,12 +291,12 @@ bool CorTreeAnalyzer::IsPairClose_ppi(float eta1, float phi1, float eta2, float 
 bool CorTreeAnalyzer::IsPairClose_pip(float eta1, float phi1, float eta2, float phi2, int ipid) {
     
     float deta = fabs(eta1 - eta2);
-	if(deta >= 0.02) return false;
+	//if(deta >= 0.02) return false;
 
     float dphi = TVector2::Phi_mpi_pi(phi1 - phi2); // -pi ~ pi の範囲で差分を取る
 
 	if(ipid == 2){
-		if(0.02<dphi && dphi<0.04) return true;
+		if(-0.02<deta && deta<0.03 && fabs(dphi)<0.04 && -0.02< fabs(dphi) && fabs(dphi)<0.04) return true;
 	}
 	
     return false;
@@ -330,8 +331,7 @@ double CorTreeAnalyzer::NormalizePhi(double phi) {
 
 const double B_TESLA = -0.5;
 const double R_VERTEX = 0.0;
-//const double R_TPC_METERS = 1.5; 
-const double R_TPC_METERS = 0.7; 
+const double R_TPC_METERS = 1.4;  //Kehao: 1.4
 
 
 double CorTreeAnalyzer::GetPhiStar(double phi_meas, double pt, double charge){

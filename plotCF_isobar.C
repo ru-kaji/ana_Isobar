@@ -291,7 +291,7 @@ void plotCF_isobar(TString fileName) {
 
     TFile *fin = new TFile(fileName, "READ");
     if (!fin || fin->IsZombie()) {
-        //std::cout << "!!! Error: Cannot open file .root !!!" << std::endl;
+        std::cout << "!!! Error: Cannot open file .root !!!" << std::endl;
         return;
     }
 
@@ -1177,7 +1177,7 @@ void plotCF_isobar(TString fileName) {
         }
 
     
-    TString outFileName = "check_isobar_mycut2_cutfakeV0_full_norebin_phiminus.root";
+    TString outFileName = "check_isobar_cutR0p06.root";
     TFile *f_my = new TFile(outFileName, "UPDATE");
 
     for(int ipid = 0; ipid < 4; ipid++) {

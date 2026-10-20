@@ -187,8 +187,8 @@ class StRefMultCorr {
   std::vector<Double_t> mgRefMultTriggerCorrDiffVzScaleRatio ; /// Scale factor for global refmult
 
   /////// Added from official package in StRoot/StRefMultCorr 
-  const Int_t getRefX() const;  /// X= 1 (normal RefMult), 2, 3, 4
-  const Int_t getNumberOfDatasets() const; /// Number of definitions for each X
+  Int_t getRefX() const;  /// X= 1 (normal RefMult), 2, 3, 4
+  Int_t getNumberOfDatasets() const; /// Number of definitions for each X
   void readHeaderFile();   //// alternative of read() in rev<=1.9 
   void readBadRunsFromHeaderFile();  /// alternative of readBadRuns() in rev<=1.9 
   //// Multiplicity dependent centrality definitions
