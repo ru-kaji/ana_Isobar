@@ -308,7 +308,7 @@ void MergeCheck(TString fileName){
 		 */
 	} // end of pid loop
 
-	float R_TPC = 1.7;
+	float R_TPC = 1.4;
 	TString title_R = TString::Format("R=%.1f", R_TPC);
 		//--------------------------------------------------
 		//  c3_ratio_pid: Δη vs Δφ* (LL, AA, LA)

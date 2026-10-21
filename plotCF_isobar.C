@@ -1177,7 +1177,7 @@ void plotCF_isobar(TString fileName) {
         }
 
     
-    TString outFileName = "check_isobar_cutR0p06.root";
+    TString outFileName = "check_isobar_cutphi7eta6_R1p4.root";
     TFile *f_my = new TFile(outFileName, "UPDATE");
 
     for(int ipid = 0; ipid < 4; ipid++) {
