@@ -1411,7 +1411,7 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 								hqinv_mix_nocut[ipid][pairid][s][8]->Fill(qinv_mix);
 							}
 						}
-						/*
+						
 						// previous pair-close check moved earlier to avoid inconsistent fills between spin bins
 						if( IsPairClose_pp(dgAeta[pid_curr][i], phiStarP_curr, etaP_past, phiStarP_past, ipid) ) continue; // p - p
 							 if (pairid >= 0 && pairid <= 3) {
@@ -1421,7 +1421,7 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 									hqinv_mix_cut[0][ipid][pairid][s][8]->Fill(qinv_mix);
 								}
 							}
-						
+						/*
 						if( IsPairClose_pipi(dgBeta[pid_curr][i], phiStarPi_curr, etaPi_past, phiStarPi_past, ipid) ) continue; // pi - pi
 							 if (pairid >= 0 && pairid <= 3) {
 								for (int s : spinid) {
