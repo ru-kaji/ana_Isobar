@@ -459,8 +459,8 @@ void DrawCanvas_isobar(TString fileName){
 
 	for(int ipid = 0; ipid < 2; ipid++){ // 0:LL, 1:AA
 
-		TH1D *hSame_for_weigh = hmass_same[3][ipid][0][2];
-		TH1D *hMix_noweigh = hmass_mix[3][ipid][0][2];
+		TH1D *hSame_for_weigh = hmass_same[0][ipid][0][2];
+		TH1D *hMix_noweigh = hmass_mix[0][ipid][0][2];
 		TH1D *hMix_for_weigh  = hmass_mix_weigh[ipid][0];
 		if(!hSame_for_weigh || !hMix_for_weigh) {
 			std::cout << "Skip weighted mass plot for ipid=" << ipid << " (missing hist)" << std::endl;
@@ -469,8 +469,7 @@ void DrawCanvas_isobar(TString fileName){
 
 		if (hSame_for_weigh->GetSumw2N() == 0) hSame_for_weigh->Sumw2();
 		if (hMix_for_weigh->GetSumw2N() == 0)  hMix_for_weigh->Sumw2();
-
-		// 【修正】FindBinがオーバーフロービンを返さないよう、上限を少しだけ内側（例: 2.2499）にする
+		
 		TH1 *hMixWeigh_scaled = ScaleHist(hSame_for_weigh, hMix_for_weigh, 2.24, 2.2799);
 		TH1 *hMixnoWeigh_scaled = ScaleHist(hSame_for_weigh, hMix_noweigh, 2.24, 2.2799);
 		c_weigh->cd(ipid*3+1);
@@ -485,23 +484,24 @@ void DrawCanvas_isobar(TString fileName){
 		hDiff_noweigh->Add(hMixnoWeigh_scaled, -1.0);
 
 		// 5. 描画
-		hDiff->SetTitle(Form("(Same - Mix_{weight}) %s", pidName[ipid]));
-		hDiff->SetXTitle("M_{inv} (GeV/c^{2})");
-		hDiff->SetYTitle("Counts");
-		hDiff->SetMarkerStyle(24);
-		hDiff->SetMarkerSize(0.8);
-		hDiff->SetMarkerColor(kRed);
-		hDiff->SetLineColor(kRed);
-		hDiff->GetYaxis()->SetRangeUser(-500, 500);
-		
-		
 		c_weigh->cd(ipid*3+2);
-		hDiff->Draw("PE");
+		hDiff_noweigh->SetTitle(Form("(Same - Mix_{weight}) %s", pidName[ipid]));
+		hDiff_noweigh->SetTitle(Form("Difference %s", pidName[ipid]));
+		hDiff_noweigh->SetXTitle("M_{inv} (GeV/c^{2})");
+		hDiff_noweigh->SetYTitle("Counts");
 		hDiff_noweigh->SetMarkerStyle(20);
 		hDiff_noweigh->SetMarkerSize(0.8);
 		hDiff_noweigh->SetLineColor(kBlue);
 		hDiff_noweigh->SetMarkerColor(kBlue);
-		hDiff_noweigh->Draw("PE same");
+		hDiff_noweigh->GetYaxis()->SetRangeUser(-500, 500); // 最初に描く方にRangeを設定
+		hDiff_noweigh->Draw("PE");
+
+		// 2. 後から赤色 (weight) を重ねる
+		hDiff->SetMarkerStyle(24);
+		hDiff->SetMarkerSize(0.8);
+		hDiff->SetMarkerColor(kRed);
+		hDiff->SetLineColor(kRed);
+		hDiff->Draw("PE same");
 
 
 		// ゼロのラインを引く
