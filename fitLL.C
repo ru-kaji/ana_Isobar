@@ -493,6 +493,7 @@ void FitPML(){
 	cout <<"FitPM()............."<< endl;
 	//TFile *in = TFile::Open("c2test.root");
 	TFile *in = TFile::Open("c2test.root");
+	if(!in) return;
 	TH1F *hQr = (TH1F*)in->Get("hQr");
 	TH1F *hQm = (TH1F*)in->Get("hQm");
 	TH1F *hC2 = (TH1F*)in->Get("hC2");

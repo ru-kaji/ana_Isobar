@@ -522,6 +522,8 @@ void DrawCanvas_isobar(TString fileName){
 		h_test_ratio->Divide(hMix_noweigh);
 		h_test_ratio->SetTitle("Mix_weight / Mix_noweight; M_{inv}; Ratio");
 		h_test_ratio->GetYaxis()->SetRangeUser(0.0, 2.0);
+		h_test_ratio->SetMinimum(0.95);
+		h_test_ratio->SetMaximum(1.05);
 		h_test_ratio->Draw();
 
 	}
