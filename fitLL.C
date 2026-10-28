@@ -480,8 +480,8 @@ void Fit1DLog(TH1F* RHist, TH1F* BHist, TH1F *in_Hcoul, float qlow, float qhig){
 void FitPML(){
 
 	cout <<"FitPM()............."<< endl;
-	//TFile *in = TFile::Open("c2test.root");
 	TFile *in = TFile::Open("c2test.root");
+	if(!in) return;
 	TH1F *hQr = (TH1F*)in->Get("hQr");
 	TH1F *hQm = (TH1F*)in->Get("hQm");
 	TH1F *hC2 = (TH1F*)in->Get("hC2");
@@ -515,7 +515,7 @@ void FitPML(){
 
 void FitAngle() {
     // 1. ファイルとヒストグラムの読み込み
-    TFile *in = TFile::Open("check_isobar_mycut2_cutfakeV0_full_norebin_phiminus.root");
+    TFile *in = TFile::Open("check_isobar_KehaoMergeTopocut_cuttracks_R1p4.root");
     if(!in || in->IsZombie()) {
         std::cerr << "Error: Could not open root file." << std::endl;
         return;
