@@ -151,7 +151,7 @@ Int_t CorTreeAnalyzer::Init()
 		if( LoadRunList()==-1 )     return -1;
 	}
 
-	TFile *fWeight = TFile::Open("weight_func.root", "READ");
+	TFile *fWeight = TFile::Open("weight_func_mycut.root", "READ");
     if(fWeight && !fWeight->IsZombie()){
         hWeightFunc = (TH1D*)fWeight->Get("hWeight");
         if(hWeightFunc)hWeightFunc->SetDirectory(0); // ファイルを閉じてもメモリに保持させる
@@ -243,8 +243,8 @@ bool CorTreeAnalyzer::IsPairClose_pp(float eta1, float phi1, float eta2, float p
 			return true; // too close (Merging or Splitting)
 		}
 	}else if(ipid == 0 || ipid == 1){
-		float cut_eta = 0.02;
-		float cut_phi = 0.03;
+		float cut_eta = 0.04;
+		float cut_phi = 0.05;
 
 		float r2 = (deta * deta) / (cut_eta * cut_eta) + (dphi * dphi) / (cut_phi * cut_phi);
 	
@@ -1619,7 +1619,7 @@ void CorTreeAnalyzer::DefHistograms(){
 	//const char* centTitle[9] = {"0-10%", "10-20%", "20-30%", "30-40%", "40-50%", "50-60%", "60-70%", "70-80%", "All"};
 
 	int bin_m = 200;
-	int bin_q = 250;
+	int bin_q = 400;
 
 	for(int ipid =0; ipid<2; ipid++){
 
