@@ -30,6 +30,7 @@ Double_t func_noBW(Double_t *x, Double_t *par);
 Double_t BW_term(Double_t Q, Double_t K_scale, Double_t E_H, Double_t Gamma_H) {
     return K_scale * (Gamma_H / (2 * TMath::Pi())) / ( (Q - E_H)*(Q - E_H) + Gamma_H*Gamma_H/4.0 );
 }
+Double_t func_baseline(Double_t *x, Double_t *par);
 void Fit1DLog(TH1F *RHist, TH1F* BHist, TH1F *i_Hcoul);
 void Minimization();
 void FitPML();
@@ -418,6 +419,16 @@ Double_t func_noBW(Double_t *x, Double_t *par){
 	return val;
 }
 
+Double_t func_baseline(Double_t *x, Double_t *par){
+    // par[0]: a_res
+    // par[1]: r_res
+    // par[2]: p0
+    // par[3]: p1
+    Double_t q = x[0] / hbar;
+    Double_t termRes = 1.0 + par[0]*exp(-par[1]*par[1]*q*q);
+    return termRes * (par[2] + par[3]*x[0]);
+}
+
 
 void Minimization(){
 
@@ -480,6 +491,7 @@ void Fit1DLog(TH1F* RHist, TH1F* BHist, TH1F *in_Hcoul, float qlow, float qhig){
 void FitPML(){
 
 	cout <<"FitPM()............."<< endl;
+	//TFile *in = TFile::Open("c2test.root");
 	TFile *in = TFile::Open("c2test.root");
 	if(!in) return;
 	TH1F *hQr = (TH1F*)in->Get("hQr");
@@ -515,7 +527,7 @@ void FitPML(){
 
 void FitAngle() {
     // 1. ファイルとヒストグラムの読み込み
-    TFile *in = TFile::Open("check_isobar_phi5eta4_cuttracks_R1p4.root");
+    TFile *in = TFile::Open("check_isobar_KehaoMergeTopocut_cuttracks_R1p4.root");
     if(!in || in->IsZombie()) {
         std::cerr << "Error: Could not open root file." << std::endl;
         return;
@@ -609,14 +621,20 @@ void FitAngle() {
     weight_Anti->SetLineStyle(2);
     weight_Anti->Draw("same");
 
-	// ☆ 重み関数の重ね書き (シグナル項なし)
-    TF1 *weight_BW_Anti = new TF1("weight_BW_Anti", func_withBW, 0.01, 0.6, 12);
-    for(int i = 0; i < 12; i++) {
-        weight_BW_Anti->SetParameter(i, fit_Anti->GetParameter(i));
-    }
-    weight_BW_Anti->SetLineColor(kGreen+2);
-    weight_BW_Anti->SetLineStyle(2);
-    weight_BW_Anti->Draw("same");
+	// Baseline
+	TF1 *draw_Base = new TF1("draw_Base", func_baseline, 0.01, 0.6, 4);
+    
+    // 全体フィット(fit_Anti)のパラメータ 5,6,7,8 をセット
+    draw_Base->SetParameters(
+        fit_Anti->GetParameter(5), // a_res
+        fit_Anti->GetParameter(6), // r_res
+        fit_Anti->GetParameter(7), // p0
+        fit_Anti->GetParameter(8)  // p1
+    );
+    
+    draw_Base->SetLineColor(kBlack);       // 好みの色に
+    draw_Base->SetLineStyle(7);           // 破線など
+    draw_Base->Draw("same");
 
 	TLegend *leg2 = new TLegend(0.45, 0.2, 0.85, 0.4);
     leg2->SetBorderSize(0);
@@ -624,7 +642,7 @@ void FitAngle() {
     leg2->AddEntry(hC2_Anti, "Data", "lp");
     leg2->AddEntry(fit_Anti, "LL+Baseline+BW", "l");
     leg2->AddEntry(weight_Anti, "LL+Baseline", "l");
-    leg2->AddEntry(weight_BW_Anti, "LL+Baseline+BW", "l");
+	leg2->AddEntry(draw_Base, "Baseline", "l");
     leg2->Draw();
 
     // ========================================================
@@ -658,7 +676,7 @@ void FitAngle() {
     leg3->AddEntry(fit_Para, "LL+Baseline", "l");
     leg3->Draw();
 
-	TFile *fOutWeight = new TFile("weight_func.root", "RECREATE");
+	TFile *fOutWeight = new TFile("weight_func_KehaoTopoMerge.root", "RECREATE");
     // 0.0 ~ 2.0 GeV/c を 2000分割（十分に細かい精度）
     TH1D *hWeight = new TH1D("hWeight", "Weight Function for Mix", 2000, 0.0, 2.0);
     for(int i = 1; i <= 2000; i++){
@@ -670,7 +688,7 @@ void FitAngle() {
 	TH1D *hWeight_BW = new TH1D("hWeight_BW", "Weight Function for Mix", 2000, 0.0, 2.0);
     for(int i = 1; i <= 2000; i++){
         double q = hWeight_BW->GetBinCenter(i);
-        hWeight_BW->SetBinContent(i, weight_BW_Anti->Eval(q));
+        hWeight_BW->SetBinContent(i, fit_Anti->Eval(q));
     }
     hWeight_BW->Write();
     fOutWeight->Close();
