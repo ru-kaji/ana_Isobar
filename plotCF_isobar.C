@@ -436,13 +436,14 @@ void plotCF_isobar(TString fileName) {
                 
                 int ispin = 0;
 
-                CFAnalyzer ana1(hSame[3][ipid][ipair][ispin][8], hMix[3][ipid][ipair][ispin][8], pidName[ipid]);
+                //CFAnalyzer ana1(hSame[3][ipid][ipair][ispin][8], hMix[3][ipid][ipair][ispin][8], pidName[ipid]);
+                CFAnalyzer ana1(hSame[0][ipid][ipair][ispin][8], hMix[0][ipid][ipair][ispin][8], pidName[ipid]);
                 ana1.Calculate(0.5, 0.8);
 
                 c_cf1->cd(ipid+ipair*4+1);
                 TH1D *hRaw  = ana1.GetRaw();
                 TH1D *hNorm = ana1.GetNorm();
-
+                
                 hRaw->SetTitle(Form("%s - %s", pidName[ipid], pairName[ipair]));
                 ana1.DrawRaw(hRaw, "PE");
                 ana1.DrawNorm(hNorm, "PE same");
@@ -460,7 +461,8 @@ void plotCF_isobar(TString fileName) {
 
                 int ipair = 0;
 
-                CFAnalyzer ana2(hSame[3][ipid][ipair][ispin][8], hMix[3][ipid][ipair][ispin][8], pidName[ipid]);
+                //CFAnalyzer ana2(hSame[3][ipid][ipair][ispin][8], hMix[3][ipid][ipair][ispin][8], pidName[ipid]);
+                CFAnalyzer ana2(hSame[0][ipid][ipair][ispin][8], hMix[0][ipid][ipair][ispin][8], pidName[ipid]);
                 ana2.Calculate(0.5, 0.8);
 
                 c_cf2->cd(ipid+ispin*4+1);
@@ -481,10 +483,16 @@ void plotCF_isobar(TString fileName) {
 
         for(int ipid = 0; ipid < 4; ipid++) {
             c_cf3 -> cd(ipid+1);
+            /*
             CFAnalyzer ana3_SS(hSame[3][ipid][0][0][8], hMix[3][ipid][0][0][8], pidName[ipid], pL[0], pA[0]);
             CFAnalyzer ana3_SB(hSame[3][ipid][1][0][8], hMix[3][ipid][1][0][8], pidName[ipid], pL[0], pA[0]);
             CFAnalyzer ana3_BS(hSame[3][ipid][2][0][8], hMix[3][ipid][2][0][8], pidName[ipid], pL[0], pA[0]);
             CFAnalyzer ana3_BB(hSame[3][ipid][3][0][8], hMix[3][ipid][3][0][8], pidName[ipid], pL[0], pA[0]);
+*/
+            CFAnalyzer ana3_SS(hSame[0][ipid][0][0][8], hMix[0][ipid][0][0][8], pidName[ipid], pL[0], pA[0]);
+            CFAnalyzer ana3_SB(hSame[0][ipid][1][0][8], hMix[0][ipid][1][0][8], pidName[ipid], pL[0], pA[0]);
+            CFAnalyzer ana3_BS(hSame[0][ipid][2][0][8], hMix[0][ipid][2][0][8], pidName[ipid], pL[0], pA[0]);
+            CFAnalyzer ana3_BB(hSame[0][ipid][3][0][8], hMix[0][ipid][3][0][8], pidName[ipid], pL[0], pA[0]);
 
             // 規格化
             ana3_SS.Calculate(0.5, 0.8);
@@ -497,8 +505,10 @@ void plotCF_isobar(TString fileName) {
             if(!hNormCorr_All) continue;
 
             hSave_CF_All[ipid]   = (TH1D*)hNormCorr_All->Clone(Form("hCF_All_%s", pidName[ipid]));
-            hSave_Same_All[ipid] = (TH1D*)hSame[3][ipid][0][0][8]->Clone(Form("hSame_All_%s", pidName[ipid]));
-            hSave_Mix_All[ipid]  = (TH1D*)hMix[3][ipid][0][0][8]->Clone(Form("hMix_All_%s", pidName[ipid]));
+            //hSave_Same_All[ipid] = (TH1D*)hSame[3][ipid][0][0][8]->Clone(Form("hSame_All_%s", pidName[ipid]));
+            //hSave_Mix_All[ipid]  = (TH1D*)hMix[3][ipid][0][0][8]->Clone(Form("hMix_All_%s", pidName[ipid]));
+            hSave_Same_All[ipid] = (TH1D*)hSame[0][ipid][0][0][8]->Clone(Form("hSame_All_%s", pidName[ipid]));
+            hSave_Mix_All[ipid]  = (TH1D*)hMix[0][ipid][0][0][8]->Clone(Form("hMix_All_%s", pidName[ipid]));
             
             // 描画設定
             hNormCorr_All->SetTitle(Form("%s;Q_{inv} (GeV/c);C(Q_{inv})", pidName[ipid]));
@@ -614,13 +624,16 @@ void plotCF_isobar(TString fileName) {
 
         CFAnalyzer* ana5_Para[4][4];
         CFAnalyzer* ana5_Anti[4][4];
+        cout << "c_cf5" << endl;
 
         for(int ipair = 0; ipair < 4; ipair++) {
             for(int ipid = 0; ipid < 4; ipid++) {
             
 
-                ana5_Para[ipid][ipair] = new CFAnalyzer(hSame[3][ipid][ipair][1][8], hMix[3][ipid][ipair][1][8], pidName[ipid], pL[0], pA[0]); 
-                ana5_Anti[ipid][ipair] = new CFAnalyzer(hSame[3][ipid][ipair][2][8], hMix[3][ipid][ipair][2][8], pidName[ipid], pL[0], pA[0]);
+                //ana5_Para[ipid][ipair] = new CFAnalyzer(hSame[3][ipid][ipair][1][8], hMix[3][ipid][ipair][1][8], pidName[ipid], pL[0], pA[0]); 
+                //ana5_Anti[ipid][ipair] = new CFAnalyzer(hSame[3][ipid][ipair][2][8], hMix[3][ipid][ipair][2][8], pidName[ipid], pL[0], pA[0]);
+                ana5_Para[ipid][ipair] = new CFAnalyzer(hSame[0][ipid][ipair][1][8], hMix[0][ipid][ipair][1][8], pidName[ipid], pL[0], pA[0]); 
+                ana5_Anti[ipid][ipair] = new CFAnalyzer(hSame[0][ipid][ipair][2][8], hMix[0][ipid][ipair][2][8], pidName[ipid], pL[0], pA[0]);
 
                 ana5_Para[ipid][ipair]->Calculate(0.5, 0.8); 
                 ana5_Anti[ipid][ipair]->Calculate(0.5, 0.8);
@@ -809,11 +822,12 @@ void plotCF_isobar(TString fileName) {
             hSave_CF_Para[ipid] = (TH1D*)hPara_cut_Corr->Clone(Form("hCF_Para_%s", pidName[ipid]));
             hSave_CF_Anti[ipid] = (TH1D*)hAnti_cut_Corr->Clone(Form("hCF_Anti_%s", pidName[ipid]));
 
-            hSave_Same_Para[ipid] = (TH1D*)hSame[4][ipid][0][1][8]->Clone(Form("hSame_Para_%s", pidName[ipid]));
-            hSave_Mix_Para[ipid]  = (TH1D*)hMix[4][ipid][0][1][8]->Clone(Form("hMix_Para_%s", pidName[ipid]));
+            hSave_Same_Para[ipid] = (TH1D*)hSame[0][ipid][0][1][8]->Clone(Form("hSame_Para_%s", pidName[ipid]));
+            hSave_Mix_Para[ipid]  = (TH1D*)hMix[0][ipid][0][1][8]->Clone(Form("hMix_Para_%s", pidName[ipid]));
 
-            hSave_Same_Anti[ipid] = (TH1D*)hSame[4][ipid][0][2][8]->Clone(Form("hSame_Anti_%s", pidName[ipid]));
-            hSave_Mix_Anti[ipid]  = (TH1D*)hMix[4][ipid][0][2][8]->Clone(Form("hMix_Anti_%s", pidName[ipid]));
+            hSave_Same_Anti[ipid] = (TH1D*)hSame[0][ipid][0][2][8]->Clone(Form("hSame_Anti_%s", pidName[ipid]));
+            hSave_Mix_Anti[ipid]  = (TH1D*)hMix[0][ipid][0][2][8]->Clone(Form("hMix_Anti_%s", pidName[ipid]));
+            
             }
 
         
@@ -827,6 +841,7 @@ void plotCF_isobar(TString fileName) {
         CFAnalyzer* ana_Nocut_Para[4][4];    CFAnalyzer* ana_Nocut_Anti[4][4];
 
         const char* icutName[4] = {"pp", "#pi#pi", "p#pi", "#pip"};
+
 
         for(int ipair = 0; ipair < 4; ipair++) {
             for(int ipid = 0; ipid < 4; ipid++) {
@@ -1132,6 +1147,7 @@ void plotCF_isobar(TString fileName) {
         TH1D* hPara_10to80[4] = {nullptr};  TH1D* hAnti_10to80[4] = {nullptr};
         TH1D* hPara_20to80[4] = {nullptr};  TH1D* hAnti_20to80[4] = {nullptr};
 
+
         for(int ipid = 0; ipid < 4; ipid++) {
             for(int ipair = 0; ipair < 4; ipair++){
 
@@ -1177,21 +1193,21 @@ void plotCF_isobar(TString fileName) {
         }
 
     
-    TString outFileName = "check_isobar_cutphi7eta6_R1p4.root";
+    TString outFileName = "check_isobar_phi5eta4_cuttracks_R1p4.root";
     TFile *f_my = new TFile(outFileName, "UPDATE");
 
     for(int ipid = 0; ipid < 4; ipid++) {
     
-        hSave_CF_All[ipid]->Write("", TObject::kOverwrite);
-        hSave_CF_Para[ipid]->Write("", TObject::kOverwrite);
-        hSave_CF_Anti[ipid]->Write("", TObject::kOverwrite);
+        if(hSave_CF_All[ipid])   hSave_CF_All[ipid]->Write("", TObject::kOverwrite);
+        if(hSave_CF_Para[ipid])  hSave_CF_Para[ipid]->Write("", TObject::kOverwrite);
+        if(hSave_CF_Anti[ipid])  hSave_CF_Anti[ipid]->Write("", TObject::kOverwrite);
 
-        hSave_Same_All[ipid]->Write("", TObject::kOverwrite);
-        hSave_Mix_All[ipid]->Write("", TObject::kOverwrite);
-        hSave_Same_Para[ipid]->Write("", TObject::kOverwrite);
-        hSave_Mix_Para[ipid]->Write("", TObject::kOverwrite);
-        hSave_Same_Anti[ipid]->Write("", TObject::kOverwrite);
-        hSave_Mix_Anti[ipid]->Write("", TObject::kOverwrite);
+        if(hSave_Same_All[ipid])  hSave_Same_All[ipid]->Write("", TObject::kOverwrite);
+        if(hSave_Mix_All[ipid])   hSave_Mix_All[ipid]->Write("", TObject::kOverwrite);
+        if(hSave_Same_Para[ipid]) hSave_Same_Para[ipid]->Write("", TObject::kOverwrite);
+        if(hSave_Mix_Para[ipid])  hSave_Mix_Para[ipid]->Write("", TObject::kOverwrite);
+        if(hSave_Same_Anti[ipid]) hSave_Same_Anti[ipid]->Write("", TObject::kOverwrite);
+        if(hSave_Mix_Anti[ipid])  hSave_Mix_Anti[ipid]->Write("", TObject::kOverwrite);
     }
     
     f_my->Close();
