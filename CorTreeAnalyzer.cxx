@@ -150,6 +150,25 @@ Int_t CorTreeAnalyzer::Init()
 	if( mSelfCor || mCalibMode ){
 		if( LoadRunList()==-1 )     return -1;
 	}
+<<<<<<< HEAD
+=======
+
+	TFile *fWeight = TFile::Open("weight_func_mycut.root", "READ");
+    if(fWeight && !fWeight->IsZombie()){
+        hWeightFunc = (TH1D*)fWeight->Get("hWeight");
+        if(hWeightFunc)hWeightFunc->SetDirectory(0); // ファイルを閉じてもメモリに保持させる
+
+		hWeightFunc_BW = (TH1D*)fWeight->Get("hWeight_BW");
+		if(hWeightFunc_BW)hWeightFunc_BW->SetDirectory(0); // ファイルを閉じてもメモリに保持させる
+        fWeight->Close();
+        std::cout << "✅ Loaded weight function (hWeight_BW) successfully!" << std::endl;
+    } else {
+        std::cout << "⚠️ Warning: Could not load weight_func.root! Weight will be 1.0" << std::endl;
+        hWeightFunc = nullptr;
+        hWeightFunc_BW = nullptr;
+    }
+
+>>>>>>> 8b052767921e491b56368416a35e5db87f48f1c4
 	/*if( mSelfCor ){
 		if( LoadEPcalibPara()==-1 ) return -1;
 	}*/
@@ -1576,7 +1595,7 @@ void CorTreeAnalyzer::DefHistograms(){
 	//const char* centTitle[9] = {"0-10%", "10-20%", "20-30%", "30-40%", "40-50%", "50-60%", "60-70%", "70-80%", "All"};
 
 	int bin_m = 200;
-	int bin_q = 250;
+	int bin_q = 400;
 
 	for(int ipid =0; ipid<2; ipid++){
 
