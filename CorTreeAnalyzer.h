@@ -310,7 +310,8 @@ public:
 	TH1D *hDeta_mix[3][4];
 	TH1D *hDphi_mix[3][4];
 
-
+	TH1F* hdgApt[7];
+	TH1F* hdgBpt[7];
 
 	//TH1F *hEtaLam[2][6]; // [ch][vz]
 

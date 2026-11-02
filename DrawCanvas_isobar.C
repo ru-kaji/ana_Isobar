@@ -488,7 +488,7 @@ void DrawCanvas_isobar(TString fileName){
 		hDiff->SetTitle(Form("(Same - Mix_{weight}) %s", pidName[ipid]));
 		hDiff->SetXTitle("M_{inv} (GeV/c^{2})");
 		hDiff->SetYTitle("Counts");
-		hDiff->SetMarkerStyle(24);
+		hDiff->SetMarkerStyle(20);
 		hDiff->SetMarkerSize(0.8);
 		hDiff->SetMarkerColor(kRed);
 		hDiff->SetLineColor(kRed);
@@ -497,7 +497,7 @@ void DrawCanvas_isobar(TString fileName){
 		
 		c_weigh->cd(ipid*3+2);
 		hDiff->Draw("PE");
-		hDiff_noweigh->SetMarkerStyle(20);
+		hDiff_noweigh->SetMarkerStyle(24);
 		hDiff_noweigh->SetMarkerSize(0.8);
 		hDiff_noweigh->SetLineColor(kBlue);
 		hDiff_noweigh->SetMarkerColor(kBlue);
@@ -521,7 +521,7 @@ void DrawCanvas_isobar(TString fileName){
 		TH1D *h_test_ratio = (TH1D*)hMix_for_weigh->Clone("h_test_ratio");
 		h_test_ratio->Divide(hMix_noweigh);
 		h_test_ratio->SetTitle("Mix_weight / Mix_noweight; M_{inv}; Ratio");
-		h_test_ratio->GetYaxis()->SetRangeUser(0.0, 2.0);
+		h_test_ratio->GetYaxis()->SetRangeUser(0.94, 1.02);
 		h_test_ratio->Draw();
 
 	}
