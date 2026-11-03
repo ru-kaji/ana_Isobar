@@ -220,6 +220,7 @@ Int_t CorTreeAnalyzer::End()
 
 	// Write histos to file and close it.
     if( mFile ){
+		mFile->cd();
 		WriteHistograms();
       //mFile->Write();  
     	mFile->Close();
