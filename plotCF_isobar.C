@@ -1193,7 +1193,7 @@ void plotCF_isobar(TString fileName) {
         }
 
     
-    TString outFileName = "check_isobar_phi5eta4_cuttracks_R1p4.root";
+    TString outFileName = "check_isobar_KehaoMergeTopocut_cuttracks_R1p4.root";
     TFile *f_my = new TFile(outFileName, "UPDATE");
 
     for(int ipid = 0; ipid < 4; ipid++) {

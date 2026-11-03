@@ -51,7 +51,7 @@ const Float_t sgm_para_Lm[3][3] = {
 };
 
 // The constructor. Initialize data members here.
-CorTreeAnalyzer::CorTreeAnalyzer() : mEventCounter(0), mFile(0), mRunNumber(0), ANA_MODE(0), mTrkEff(0), mSelfCor(0), mCalibMode(0), mTotalEvents(0)
+CorTreeAnalyzer::CorTreeAnalyzer() : mTotalEvents(0), mEventCounter(0), mFile(0), mRunNumber(0), ANA_MODE(0), mTrkEff(0), mSelfCor(0), mCalibMode(0)
 { 
 	mFileName = "muAnalysis.root";
 	gRandom->SetSeed(0);
@@ -150,8 +150,7 @@ Int_t CorTreeAnalyzer::Init()
 	if( mSelfCor || mCalibMode ){
 		if( LoadRunList()==-1 )     return -1;
 	}
-<<<<<<< HEAD
-=======
+
 
 	TFile *fWeight = TFile::Open("weight_func_mycut.root", "READ");
     if(fWeight && !fWeight->IsZombie()){
@@ -168,7 +167,7 @@ Int_t CorTreeAnalyzer::Init()
         hWeightFunc_BW = nullptr;
     }
 
->>>>>>> 8b052767921e491b56368416a35e5db87f48f1c4
+
 	/*if( mSelfCor ){
 		if( LoadEPcalibPara()==-1 ) return -1;
 	}*/
@@ -221,6 +220,7 @@ Int_t CorTreeAnalyzer::End()
 
 	// Write histos to file and close it.
     if( mFile ){
+		mFile->cd();
 		WriteHistograms();
       //mFile->Write();  
     	mFile->Close();
@@ -750,6 +750,11 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 			if( ptv0 < 0.6 ) continue;
 			if( ptv0 > 3.0 ) continue; 
 			if( fabs(rap) > 0.8 ) continue;
+
+			if( fCH == 0 || fCH == 1 ){
+				hdgApt[fCH]->Fill(ptA); // dgApt (Daughter BaryonのpT)
+				hdgBpt[fCH]->Fill(ptB); // dgBpt (Daughter MesonのpT)
+			}
 
 			// only select tof-matched
 			if( tofid==0 || tofid==3 ) prtA[fCH].push_back( make_pair(p_eve->get_phiA(l),p_eve->get_etaA(l)) );
@@ -2148,6 +2153,11 @@ void CorTreeAnalyzer::DefHistograms(){
 				hIMvsPtv0[ich][ict][id] = new TH2F( Form("hIMvsPtv0_%d_%d_%d",ich,ict,id), Form("hIMvsPtv0_%d_%d_%d",ich,ict,id), 100, 1.07, 1.17, 40, 0.5, 4.5 );
 	}	}	}
 
+	for( int ip=0; ip<7; ip++ ){
+		hdgApt[ip] = new TH1F( Form("hdgApt_%d",ip), Form("Daughter Baryon p_{T} (PID=%d);p_{T} [GeV/c];Counts",ip), 100, 0, 10 );
+		hdgBpt[ip] = new TH1F( Form("hdgBpt_%d",ip), Form("Daughter Meson p_{T} (PID=%d);p_{T} [GeV/c];Counts",ip), 100, 0, 10 );
+	}
+
 	// slefcor study
 	for( int ich=0; ich<2; ich++ ){
 		for( int k=0; k<8; k++ ){
@@ -2596,6 +2606,11 @@ void CorTreeAnalyzer::WriteHistograms(){
 		for( int k=0; k<8; k++ ){
 			hPz2SCvsCent[ich][k]->Write();
 	}	}
+
+	for( int ip=0; ip<7; ip++ ){
+		if(hdgApt[ip]) hdgApt[ip]->Write();
+		if(hdgBpt[ip]) hdgBpt[ip]->Write();
+	}
 }
 
 void CorTreeAnalyzer::SetChAsymWidthRun14(){
