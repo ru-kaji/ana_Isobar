@@ -676,7 +676,7 @@ void FitAngle() {
     leg3->AddEntry(fit_Para, "LL+Baseline", "l");
     leg3->Draw();
 
-	TFile *fOutWeight = new TFile("weight_func_phi5eta4.root", "RECREATE");
+	TFile *fOutWeight = new TFile("weight_func_KehaoTopoMerge.root", "RECREATE");
     // 0.0 ~ 2.0 GeV/c を 2000分割（十分に細かい精度）
     TH1D *hWeight = new TH1D("hWeight", "Weight Function for Mix", 2000, 0.0, 2.0);
     for(int i = 1; i <= 2000; i++){

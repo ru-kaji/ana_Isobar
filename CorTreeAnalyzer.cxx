@@ -183,6 +183,7 @@ Int_t CorTreeAnalyzer::Init()
 		hWeightFunc_BW = (TH1D*)fWeight->Get("hWeight_BW");
 		if(hWeightFunc_BW)hWeightFunc_BW->SetDirectory(0); // ファイルを閉じてもメモリに保持させる
         fWeight->Close();
+		delete fWeight;
         std::cout << "✅ Loaded weight function (hWeight_BW) successfully!" << std::endl;
     } else {
         std::cout << "⚠️ Warning: Could not load weight_func.root! Weight will be 1.0" << std::endl;
@@ -246,6 +247,8 @@ Int_t CorTreeAnalyzer::End()
 		WriteHistograms();
       //mFile->Write();  
     	mFile->Close();
+		delete mFile;
+		mFile = nullptr;
     }
 
     return 0;

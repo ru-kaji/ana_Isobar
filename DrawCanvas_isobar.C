@@ -459,8 +459,8 @@ void DrawCanvas_isobar(TString fileName){
 
 	for(int ipid = 0; ipid < 2; ipid++){ // 0:LL, 1:AA
 
-		TH1D *hSame_for_weigh = hmass_same[3][ipid][0][2];
-		TH1D *hMix_noweigh = hmass_mix[3][ipid][0][2];
+		TH1D *hSame_for_weigh = hmass_same[0][ipid][0][2];
+		TH1D *hMix_noweigh = hmass_mix[0][ipid][0][2];
 		TH1D *hMix_for_weigh  = hmass_mix_weigh[ipid][0];
 		if(!hSame_for_weigh || !hMix_for_weigh) {
 			std::cout << "Skip weighted mass plot for ipid=" << ipid << " (missing hist)" << std::endl;
