@@ -541,14 +541,14 @@ void FitAngle() {
     if(!in || in->IsZombie()) TH1D *hC2_All  = (TH1D*)in->Get("hCF_All_LL");
     if(!in || in->IsZombie()) TH1D *hC2_Anti = (TH1D*)in->Get("hCF_Anti_LL");
     if(!in || in->IsZombie())TH1D *hC2_Para = (TH1D*)in->Get("hCF_Para_LL");*/
-	TH1D *hC2_Anti = (TH1D*)in_Para->Get("hCF_cut2_s_cent0");
-    TH1D *hC2_Para = (TH1D*)in_Anti->Get("hCF_cut2_s_cent0");
+	TH1D *hC2_Para = (TH1D*)in_Para->Get("hCF_cut2_s_cent0");
+    TH1D *hC2_Anti = (TH1D*)in_Anti->Get("hCF_cut2_s_cent0");
 
 	double scale = 1000.0; 
 	double xmin_Para = hC2_Para->GetXaxis()->GetXmin();
 	double xmax_Para = hC2_Para->GetXaxis()->GetXmax();
 	hC2_Para->GetXaxis()->SetLimits(xmin_Para / scale, xmax_Para / scale);
-	
+
 	double xmin_Anti = hC2_Anti->GetXaxis()->GetXmin();
 	double xmax_Anti = hC2_Anti->GetXaxis()->GetXmax();
 	hC2_Anti->GetXaxis()->SetLimits(xmin_Anti / scale, xmax_Anti / scale);
