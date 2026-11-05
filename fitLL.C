@@ -527,18 +527,36 @@ void FitPML(){
 
 void FitAngle() {
     // 1. ファイルとヒストグラムの読み込み
-    TFile *in = TFile::Open("check_isobar_KehaoMergeTopocut_cuttracks_R1p4.root");
-    if(!in || in->IsZombie()) {
+    //TFile *in = TFile::Open("check_isobar_KehaoMergeTopocut_cuttracks_R1p4.root");
+	TFile *in_Para = TFile::Open("smallerbin0_90.root");
+	TFile *in_Anti = TFile::Open("smallerbin90_180.root");
+    /*if(!in || in->IsZombie()) {
         std::cerr << "Error: Could not open root file." << std::endl;
         return;
     }
-    TH1D *hC2_All  = (TH1D*)in->Get("hCF_All_LL");
-    TH1D *hC2_Anti = (TH1D*)in->Get("hCF_Anti_LL");
-    TH1D *hC2_Para = (TH1D*)in->Get("hCF_Para_LL");
+	if(!in_Para || !i_Anti) {
+        std::cerr << "Error: Could not open  Kehao data root file." << std::endl;
+        return;
+    }
+    if(!in || in->IsZombie()) TH1D *hC2_All  = (TH1D*)in->Get("hCF_All_LL");
+    if(!in || in->IsZombie()) TH1D *hC2_Anti = (TH1D*)in->Get("hCF_Anti_LL");
+    if(!in || in->IsZombie())TH1D *hC2_Para = (TH1D*)in->Get("hCF_Para_LL");*/
+	TH1D *hC2_Anti = (TH1D*)in_Para->Get("hCF_cut2_s_cent0");
+    TH1D *hC2_Para = (TH1D*)in_Anti->Get("hCF_cut2_s_cent0");
+
+	double scale = 1000.0; 
+	double xmin_Para = hC2_Para->GetXaxis()->GetXmin();
+	double xmax_Para = hC2_Para->GetXaxis()->GetXmax();
+	hC2_Para->GetXaxis()->SetLimits(xmin_Para / scale, xmax_Para / scale);
+	
+	double xmin_Anti = hC2_Anti->GetXaxis()->GetXmin();
+	double xmax_Anti = hC2_Anti->GetXaxis()->GetXmax();
+	hC2_Anti->GetXaxis()->SetLimits(xmin_Anti / scale, xmax_Anti / scale);
+    
 
     TCanvas *cAll = new TCanvas("cAll", "Angle Dependent CF Fits", 1200, 400);
     cAll->Divide(3, 1);
-    
+    /*
     // ========================================================
     // [Pad 1] 0-180度: BWなし、a_weight = 0.25 (固定)
     // ========================================================
@@ -546,7 +564,7 @@ void FitAngle() {
     TF1 *fit_All = new TF1("fit_All", func_withBW, 0.01, 0.6, 12);
     // 初期値設定 (lambda, r0, f0, d0, a_weight, a_res, r_res, p0, p1, K_scale, E_H, Gamma_H)
     Double_t par_All[12] = {0.18, 1.77, 0.60, 9.80, 0.25, -0.044, 0.68, 0.992, 0.00283, 10.75, 0.1, 0.02};
-
+	if(!hC2_All) return;
 	fit_All->FixParameter(0, 0.18);        // lambda (固定)
     fit_All->SetParLimits(1, 1.0, 3.0);    // r0
     fit_All->SetParLimits(2, -10.0, 10.0); // f0
@@ -584,7 +602,7 @@ void FitAngle() {
     leg1->AddEntry(fit_All, "LL+Baseline+BW", "l");
     leg1->AddEntry(weight_All, "LL+Baseline", "l");
     leg1->Draw();
-
+*/
     // ========================================================
     // [Pad 2] 90-180度: BWなし、a_weight フリー ＋ 重み関数重ね書き
     // ========================================================
@@ -680,6 +698,7 @@ void FitAngle() {
     // 0.0 ~ 2.0 GeV/c を 2000分割（十分に細かい精度）
     TH1D *hWeight = new TH1D("hWeight", "Weight Function for Mix", 2000, 0.0, 2.0);
     for(int i = 1; i <= 2000; i++){
+		
         double q = hWeight->GetBinCenter(i);
         hWeight->SetBinContent(i, weight_Anti->Eval(q));
     }
