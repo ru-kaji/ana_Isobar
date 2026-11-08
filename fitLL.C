@@ -533,11 +533,11 @@ void FitAngle() {
     /*if(!in || in->IsZombie()) {
         std::cerr << "Error: Could not open root file." << std::endl;
         return;
-    }
-	if(!in_Para || !i_Anti) {
+    }*/
+	if(!in_Para || !in_Anti) {
         std::cerr << "Error: Could not open  Kehao data root file." << std::endl;
         return;
-    }
+    }/*
     if(!in || in->IsZombie()) TH1D *hC2_All  = (TH1D*)in->Get("hCF_All_LL");
     if(!in || in->IsZombie()) TH1D *hC2_Anti = (TH1D*)in->Get("hCF_Anti_LL");
     if(!in || in->IsZombie())TH1D *hC2_Para = (TH1D*)in->Get("hCF_Para_LL");*/
@@ -608,8 +608,10 @@ void FitAngle() {
     // ========================================================
     cAll->cd(2);
     TF1 *fit_Anti = new TF1("fit_Anti", func_withBW, 0.01, 0.6, 12);
-    Double_t par_Anti[12] = {0.18, 1.64, 0.60, 9.80, 0.32, -0.07, 0.90, 0.992, 0.00247, 5.0, 0.1, 0.02};
+    //Double_t par_Anti[12] = {0.18, 1.64, 0.60, 9.80, 0.32, -0.07, 0.90, 0.992, 0.00247, 5.0, 0.1, 0.02};
+	Double_t par_Anti[12] = {0.18, 1.64, 0.60, 9.80, 0.32, -0.07, 0.90, 0.992, 0.00247, 31.15, 0.1, 0.02}; //Kehao
 
+	/* Rurika
 	fit_Anti->FixParameter(0, 0.18);       // lambda (固定)
     fit_Anti->SetParLimits(1, 1.0, 3.0);   // r0
     fit_Anti->SetParLimits(2, -10.0, 10.0);// f0
@@ -620,6 +622,20 @@ void FitAngle() {
     fit_Anti->SetParLimits(7, 0.9, 1.1);   // p0
     fit_Anti->SetParLimits(8, 0.0, 0.01);  // p1
     fit_Anti->SetParLimits(9, 0.0, 10.0);  // K_scale
+    fit_Anti->SetParLimits(10, 0.08, 0.12);// E_H
+    fit_Anti->SetParLimits(11, 0.015, 0.05);// Gamma_H*/
+
+	// Kehao
+	fit_Anti->FixParameter(0, 0.18);       // lambda (固定)
+    fit_Anti->FixParameter(2, 0.60);       // f0 (固定)
+    fit_Anti->FixParameter(3, 9.80);       // d0 (固定)
+    fit_Anti->SetParLimits(1, 1.0, 3.0);   // r0
+    fit_Anti->SetParLimits(4, 0.0, 1.0);   // a_weight
+    fit_Anti->SetParLimits(5, -0.2, 0.2);  // a_res
+    fit_Anti->SetParLimits(6, 0.0, 2.0);   // r_res
+    fit_Anti->SetParLimits(7, 0.9, 1.1);   // p0
+    fit_Anti->SetParLimits(8, 0.0, 0.01);  // p1
+    fit_Anti->SetParLimits(9, 0.0, 50.0);  // K_scale
     fit_Anti->SetParLimits(10, 0.08, 0.12);// E_H
     fit_Anti->SetParLimits(11, 0.015, 0.05);// Gamma_H
 
@@ -680,6 +696,17 @@ void FitAngle() {
     fit_Para->SetParLimits(6, 0.0, 2.0);
     fit_Para->SetParLimits(7, 0.9, 1.1);
     fit_Para->SetParLimits(8, 0.0, 0.01);*/
+
+	// Kehao
+	fit_Para->FixParameter(0, 0.18);       // lambda (固定)
+    fit_Para->FixParameter(2, 0.60);       // f0 (固定)
+    fit_Para->FixParameter(3, 9.80);       // d0 (固定)
+    fit_Para->SetParLimits(1, 1.0, 3.0);   // r0
+    fit_Para->SetParLimits(4, 0.0, 1.0);   // a_weight
+    fit_Para->SetParLimits(5, -0.2, 0.2);  // a_res
+    fit_Para->SetParLimits(6, 0.0, 2.0);   // r_res
+    fit_Para->SetParLimits(7, 0.9, 1.1);   // p0
+    fit_Para->SetParLimits(8, 0.0, 0.01);  // p1
 
     fit_Para->SetLineColor(kRed);
     hC2_Para->SetTitle("Parallel");

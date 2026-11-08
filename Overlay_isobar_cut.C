@@ -54,21 +54,33 @@ void Overlay_isobar_cut(){
     }
 
     // -------------------- f1 ------------------------- 
-    TFile *f1    = new TFile("check_isobar_KehaoMergeTopocut_cuttracks_R1p4.root", "READ"); // Δη<0.02, Δφ*<0.02
+    TFile *f1    = new TFile("check_isobar_phi5eta4_Loose_cuttracks_R1p4.root", "READ"); // Δη<0.02, Δφ*<0.02
+    if (!f1) {
+        std::cout << "!!! Error: Cannot open one f1 !!!" << std::endl;
+        return;
+    }
 
     TH1D *h1[2] = {nullptr, nullptr};  // 0: Para, 1: Anti (Qinv スケール, Max 0.5)
     h1[0]  = (TH1D*)f1->Get("hCF_Para_LL+AA");
     h1[1]  = (TH1D*)f1->Get("hCF_Anti_LL+AA");
 
     // -------------------- f2 ------------------------- 
-    TFile *f2   = new TFile("check_isobar_KehaoMergeTopocut_cuttracks_R1p4_highpT.root", "READ"); // Δη<0.04, Δφ*<0.04
+    TFile *f2   = new TFile("check_isobar_phi5eta4_cuttracks_R1p4.root", "READ"); // Δη<0.04, Δφ*<0.04
+    if (!f2) {
+        std::cout << "!!! Error: Cannot open one f2 !!!" << std::endl;
+        return;
+    }
 
     TH1D *h2[2] = {nullptr, nullptr};
     h2[0]  = (TH1D*)f2->Get("hCF_Para_LL+AA");
     h2[1]  = (TH1D*)f2->Get("hCF_Anti_LL+AA");
 
     // -------------------- f3 ------------------------- 
-    TFile *f3   = new TFile("check_isobar_cutR0p06.root", "READ"); // Δη<0.06, Δφ*<0.06
+    TFile *f3   = new TFile("check_isobar_phi5eta4_Tight_cuttracks_R1p4.root", "READ"); // Δη<0.06, Δφ*<0.06
+    if (!f3) {
+        std::cout << "!!! Error: Cannot open one f3 !!!" << std::endl;
+        return;
+    }
 
     TH1D *h3[2] = {nullptr, nullptr};
     h3[0]  = (TH1D*)f3->Get("hCF_Para_LL+AA");
@@ -94,9 +106,10 @@ void Overlay_isobar_cut(){
     }
 
 
-    const char* titles[2] = {"Para", "Anti"};
+    const char* titles[2] = {"Parallel", "Anti-Parallel"};
     double y_min[2] = {0.6, 0.8}; 
     double x_max[2] = {2.0, 0.6};
+    TH1D *h0;
 
     for(int i=0; i<2; i++){
         TCanvas *c1_ol = new TCanvas(Form("c1_ol[%d]", i), "(0.0, 2.0)GeV/c", 1600, 500);
@@ -106,23 +119,25 @@ void Overlay_isobar_cut(){
             c1_ol->cd(j + 1);
 
             TH1D *h_ref = (TH1D*)h_ref_smallbin[j]->Clone(Form("h_ref_clone_%d_%d", i, j));
-            h_ref->SetTitle(Form("CF %s; Q^{inv} (GeV/c); C(Q_{inv})", titles[j]));
 
-            h_ref->GetXaxis()->SetRangeUser(0.0, x_max[i]); 
-            h_ref->SetMaximum(1.1);
-            h_ref->SetMinimum(y_min[j]);
+            //if(h_ref) h0 = h_ref;
+            h0 = h1[j];
+            h0->SetTitle(Form("%s; Q^{inv} (GeV/c); C(Q_{inv})", titles[j]));
+            h0->GetXaxis()->SetRangeUser(0.0, x_max[i]); 
+            h0->SetMaximum(1.1);
+            h0->SetMinimum(y_min[j]);
+            h0->Draw("PE");
 
-            h_ref->Draw("PE");
-            if(h1[j]) h1[j]->Draw("PE SAME");
+            //if(h1[j]) h1[j]->Draw("PE SAME");
             if(h2[j]) h2[j]->Draw("PE SAME");
-            //if(h3[j]) h3[j]->Draw("PE SAME");
+            if(h3[j]) h3[j]->Draw("PE SAME");
 
             TLegend *leg = new TLegend(0.4, 0.15, 0.9, 0.35);
             leg->SetBorderSize(0);
-            leg->AddEntry(h_ref, "Kehao (0.4< p_{T} <3.0)(remove pairs)", "pe");
-            if(h1[j]) leg->AddEntry(h1[j], "Rurika (0.4< p_{T} <3.0)(remove tracks)", "pe");
-            if(h2[j]) leg->AddEntry(h2[j], "Rurika (0.4< p_{T})(remove tracks)", "pe");
-            //if(h3[j]) leg->AddEntry(h3[j], "#frac{#Delta#eta^{2}}{0.02^{2}} + #frac{#Delta#phi^{*2}}{0.03^{2}} < 1.0 ", "pe");
+            //leg->AddEntry(h_ref, "Kehao", "pe");
+            if(h1[j]) leg->AddEntry(h1[j], "Loose", "pe");
+            if(h2[j]) leg->AddEntry(h2[j], "Default", "pe");
+            if(h3[j]) leg->AddEntry(h3[j], "Tight", "pe");
             leg->Draw("same");
 
             TLine *line = new TLine(0.0, 1.0, x_max[i], 1.0);
