@@ -2210,7 +2210,7 @@ void CorTreeAnalyzer::DefHistograms(){
 				hIMvsPtv0[ich][ict][id] = new TH2F( Form("hIMvsPtv0_%d_%d_%d",ich,ict,id), Form("hIMvsPtv0_%d_%d_%d",ich,ict,id), 100, 1.07, 1.17, 40, 0.5, 4.5 );
 	}	}	}
 
-	for( int ip=0; ip<7; ip++ ){
+	for( int ip=0; ip<2; ip++ ){
 		hdgApt[ip] = new TH1F( Form("hdgApt_%d",ip), Form("Daughter Baryon p_{T} (PID=%d);p_{T} [GeV/c];Counts",ip), 100, 0, 10 );
 		hdgBpt[ip] = new TH1F( Form("hdgBpt_%d",ip), Form("Daughter Meson p_{T} (PID=%d);p_{T} [GeV/c];Counts",ip), 100, 0, 10 );
 	}
@@ -2671,7 +2671,7 @@ void CorTreeAnalyzer::WriteHistograms(){
 			hPz2SCvsCent[ich][k]->Write();
 	}	}
 	
-	for( int ip=0; ip<7; ip++ ){
+	for( int ip=0; ip<2; ip++ ){
 		if(hdgApt[ip]) hdgApt[ip]->Write();
 		if(hdgBpt[ip]) hdgBpt[ip]->Write();
 	}

@@ -27,9 +27,10 @@ void LogLikelihood1D(Int_t &npar, Double_t *gin, Double_t &f, Double_t *u, Int_t
 Double_t func1D(Double_t x, Double_t fcw, Double_t *par);
 Double_t funcLL(Double_t *x, Double_t *par);
 Double_t func_noBW(Double_t *x, Double_t *par);
-Double_t BW_term(Double_t Q, Double_t K_scale, Double_t E_H, Double_t Gamma_H) {
+/*Double_t BW_term(Double_t Q, Double_t K_scale, Double_t E_H, Double_t Gamma_H) {
     return K_scale * (Gamma_H / (2 * TMath::Pi())) / ( (Q - E_H)*(Q - E_H) + Gamma_H*Gamma_H/4.0 );
-}
+}*/
+Double_t BW_term(Double_t Q, Double_t K_scale, Double_t E_H, Double_t Gamma_H); //Kehao
 Double_t func_baseline(Double_t *x, Double_t *par);
 void Fit1DLog(TH1F *RHist, TH1F* BHist, TH1F *i_Hcoul);
 void Minimization();
@@ -429,6 +430,39 @@ Double_t func_baseline(Double_t *x, Double_t *par){
     return termRes * (par[2] + par[3]*x[0]);
 }
 
+Double_t BW_term(Double_t Q, Double_t K_scale, Double_t E_H, Double_t Gamma_H) {
+    // 基礎物理定数
+    double m_Lambda = 1.115683; // GeV/c^2
+    
+    // PDF Eq (45) の定数
+    double N_H = 0.013;
+    double N_LL = 900.0;
+    
+    // Q (相対運動量) から不変質量 E_Q への変換
+    double E_Q = sqrt(Q*Q + 4.0 * m_Lambda * m_Lambda);
+    double dEq_dQ = Q / E_Q; // ヤコビアン dE_Q / dQ
+    
+    // f_BW(E_Q) : PDF Eq (45)
+    double f_BW = (Gamma_H / (2.0 * TMath::Pi())) / ( (E_Q - E_H)*(E_Q - E_H) + Gamma_H*Gamma_H/4.0 );
+    
+    // 分子 dN_H / dydQ : PDF Eq (44)
+    double dNH_dydQ = N_H * f_BW * dEq_dQ;
+    
+    // 分母 dN_LL / dydQ : PDF Eq (44)の下の式
+    // ※注意: PDFには N_H, N_LL は明記されていますが、mu_T (横質量に関連するパラメータ) の
+    // 具体的な数値が記載されていません。ここでは仮に 0.5 GeV と置きますが、
+    // 解析ノートの他セクションや過去コードに mu_T の指定があればそれに合わせてください。
+    double mu_T = 1.3; 
+    double denom = pow(2.0 * TMath::Pi() * mu_T, 1.5) * 2.0;
+    double dNLL_dydQ = (pow(TMath::Pi() * Q, 2) * N_LL * exp(-Q*Q / (8.0 * mu_T))) / denom;
+    
+    // ゼロ割り防止
+    if (dNLL_dydQ <= 0.0) return 0.0;
+    
+    // BW(Q) : PDF Eq (43)
+    return K_scale * (dNH_dydQ / dNLL_dydQ);
+}
+
 
 void Minimization(){
 
@@ -609,7 +643,9 @@ void FitAngle() {
     cAll->cd(2);
     TF1 *fit_Anti = new TF1("fit_Anti", func_withBW, 0.01, 0.6, 12);
     //Double_t par_Anti[12] = {0.18, 1.64, 0.60, 9.80, 0.32, -0.07, 0.90, 0.992, 0.00247, 5.0, 0.1, 0.02};
-	Double_t par_Anti[12] = {0.18, 1.64, 0.60, 9.80, 0.32, -0.07, 0.90, 0.992, 0.00247, 31.15, 0.1, 0.02}; //Kehao
+	//Double_t par_Anti[12] = {0.18, 1.64, 0.60, 9.80, 0.32, -0.07, 0.90, 0.992, 0.00247, 31.15, 0.1, 0.02}; //Kehao
+	Double_t par_Anti[12] = {0.394, 1.64, 0.60, 9.80, 0.32, -0.07, 0.90, 0.992, 0.00247, 31.15, 2.14, 2.13}; 
+
 
 	/* Rurika
 	fit_Anti->FixParameter(0, 0.18);       // lambda (固定)
@@ -625,6 +661,7 @@ void FitAngle() {
     fit_Anti->SetParLimits(10, 0.08, 0.12);// E_H
     fit_Anti->SetParLimits(11, 0.015, 0.05);// Gamma_H*/
 
+	/*
 	// Kehao
 	fit_Anti->FixParameter(0, 0.18);       // lambda (固定)
     fit_Anti->FixParameter(2, 0.60);       // f0 (固定)
@@ -637,7 +674,22 @@ void FitAngle() {
     fit_Anti->SetParLimits(8, 0.0, 0.01);  // p1
     fit_Anti->SetParLimits(9, 0.0, 50.0);  // K_scale
     fit_Anti->SetParLimits(10, 0.08, 0.12);// E_H
-    fit_Anti->SetParLimits(11, 0.015, 0.05);// Gamma_H
+    fit_Anti->SetParLimits(11, 0.015, 0.05);// Gamma_H*/
+
+	//Kehao修正
+	fit_Anti->FixParameter(0, 0.394);      // lambda (固定)
+    fit_Anti->FixParameter(2, 0.60);       // f0 (固定)
+    fit_Anti->FixParameter(3, 9.80);       // d0 (固定)
+    fit_Anti->SetParLimits(1, 1.0, 3.0);   // r0
+    fit_Anti->SetParLimits(4, 0.0, 1.0);   // a_weight
+    fit_Anti->SetParLimits(5, -0.2, 0.2);  // a_res
+    fit_Anti->SetParLimits(6, 0.0, 2.0);   // r_res
+    fit_Anti->SetParLimits(7, 0.9, 1.1);   // p0
+    fit_Anti->SetParLimits(8, 0.0, 0.01);  // p1
+    fit_Anti->SetParLimits(9, 0.0, 50.0);  // K_scale
+
+	fit_Anti->SetParLimits(10, 1.0, 3.0);      // E_H (不変質量 2.234 GeV付近)
+    fit_Anti->SetParLimits(11, 0.0, 4.0);   // Gamma_H (数MeV程度)
 
     fit_Anti->SetParameters(par_Anti);
     fit_Anti->SetLineColor(kRed);
@@ -695,10 +747,22 @@ void FitAngle() {
     fit_Para->SetParLimits(5, -0.2, 0.2);
     fit_Para->SetParLimits(6, 0.0, 2.0);
     fit_Para->SetParLimits(7, 0.9, 1.1);
-    fit_Para->SetParLimits(8, 0.0, 0.01);*/
+    fit_Para->SetParLimits(8, 0.0, 0.01);
 
 	// Kehao
 	fit_Para->FixParameter(0, 0.18);       // lambda (固定)
+    fit_Para->FixParameter(2, 0.60);       // f0 (固定)
+    fit_Para->FixParameter(3, 9.80);       // d0 (固定)
+    fit_Para->SetParLimits(1, 1.0, 3.0);   // r0
+    fit_Para->SetParLimits(4, 0.0, 1.0);   // a_weight
+    fit_Para->SetParLimits(5, -0.2, 0.2);  // a_res
+    fit_Para->SetParLimits(6, 0.0, 2.0);   // r_res
+    fit_Para->SetParLimits(7, 0.9, 1.1);   // p0
+    fit_Para->SetParLimits(8, 0.0, 0.01);  // p1*/
+
+	fit_Para->SetParameters(0.394, 1.83, 0.60, 9.80, 0.20, -0.032, 0.54, 0.992, 0.00302);
+    
+    fit_Para->FixParameter(0, 0.394);      // lambda (固定)
     fit_Para->FixParameter(2, 0.60);       // f0 (固定)
     fit_Para->FixParameter(3, 9.80);       // d0 (固定)
     fit_Para->SetParLimits(1, 1.0, 3.0);   // r0
@@ -721,7 +785,7 @@ void FitAngle() {
     leg3->AddEntry(fit_Para, "LL+Baseline", "l");
     leg3->Draw();
 
-	TFile *fOutWeight = new TFile("weight_func_KehaoTopoMerge.root", "RECREATE");
+	TFile *fOutWeight = new TFile("weight_KehaoTopoMerge_Kehaofit.root", "RECREATE");
     // 0.0 ~ 2.0 GeV/c を 2000分割（十分に細かい精度）
     TH1D *hWeight = new TH1D("hWeight", "Weight Function for Mix", 2000, 0.0, 2.0);
     for(int i = 1; i <= 2000; i++){

@@ -54,7 +54,7 @@ void Overlay_isobar_cut(){
     }
 
     // -------------------- f1 ------------------------- 
-    TFile *f1    = new TFile("check_isobar_phi5eta4_cuttracks_R1p4.root", "READ"); // Δη<0.02, Δφ*<0.02
+    TFile *f1    = new TFile("check_isobar_KehaoMergeTopoLoose_cuttracks_R1p4.root", "READ"); // Δη<0.02, Δφ*<0.02
     if (!f1) {
         std::cout << "!!! Error: Cannot open one f1 !!!" << std::endl;
         return;
@@ -120,22 +120,22 @@ void Overlay_isobar_cut(){
 
             TH1D *h_ref = (TH1D*)h_ref_smallbin[j]->Clone(Form("h_ref_clone_%d_%d", i, j));
 
-            //if(h_ref) h0 = h_ref;
-            h0 = h2[j];
+            if(h_ref) h0 = h_ref;
+            //h0 = h2[j];
             h0->SetTitle(Form("%s; Q^{inv} (GeV/c); C(Q_{inv})", titles[j]));
             h0->GetXaxis()->SetRangeUser(0.0, x_max[i]); 
             h0->SetMaximum(1.1);
             h0->SetMinimum(y_min[j]);
             h0->Draw("PE");
 
-            //if(h1[j]) h1[j]->Draw("PE SAME");
+            if(h1[j]) h1[j]->Draw("PE SAME");
             if(h2[j]) h2[j]->Draw("PE SAME");
             if(h3[j]) h3[j]->Draw("PE SAME");
 
             TLegend *leg = new TLegend(0.4, 0.15, 0.9, 0.35);
             leg->SetBorderSize(0);
-            //leg->AddEntry(h_ref, "Kehao", "pe");
-            //if(h1[j]) leg->AddEntry(h1[j], "Loose", "pe");
+            leg->AddEntry(h_ref, "Kehao", "pe");
+            if(h1[j]) leg->AddEntry(h1[j], "Loose", "pe");
             if(h2[j]) leg->AddEntry(h2[j], "Default", "pe");
             if(h3[j]) leg->AddEntry(h3[j], "Tight", "pe");
             leg->Draw("same");
