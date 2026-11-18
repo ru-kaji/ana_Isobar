@@ -114,14 +114,22 @@ void DrawCanvas_isobar(TString fileName){
 				hmass_mix_low[ipid][ipair][ispin]  = (TH1D*)fin->Get(nameMassM_low);
 			} // end of spin loop
 
-			if( ipid == 0 || ipid == 1) {
+			if(ipid==0 || ipid==1){
 				hmass_mix_weigh[ipid][ipair] = (TH1D*)fin->Get(Form("hmass_mix_weigh_%s_%s", pidName[ipid], pairName[ipair]));
 				hqinv_mix_weigh[ipid][ipair] = (TH1D*)fin->Get(Form("hqinv_mix_weigh_%s_%s", pidName[ipid], pairName[ipair]));
 				if (!hmass_mix_weigh[ipid][ipair]) std::cout << "!!! Missing: hmass_mix_weigh" << pidName[ipid] << " !!!" << std::endl;
 				if (!hqinv_mix_weigh[ipid][ipair])  std::cout << "!!! Missing: hqinv_mix_weigh" << pidName[ipid] << " !!!" << std::endl;
 			}
+			
 		} // end of pair loop
 	} // end of pid loop
+
+	for(int ipair=0; ipair<4; ipair++){
+		hmass_mix_weigh[3][ipair] = (TH1D*)fin->Get(Form("hmass_mix_weigh_%s_%s", pidName[3], pairName[ipair]));
+		hqinv_mix_weigh[3][ipair] = (TH1D*)fin->Get(Form("hqinv_mix_weigh_%s_%s", pidName[3], pairName[ipair]));
+		if (!hmass_mix_weigh[3][ipair]) std::cout << "!!! Missing: hmass_mix_weigh" << pidName[3] << " !!!" << std::endl;
+		if (!hqinv_mix_weigh[3][ipair])  std::cout << "!!! Missing: hqinv_mix_weigh" << pidName[3] << " !!!" << std::endl;
+	}
 		
 	TCanvas *c3[3][3], *c4[3], *c5[3], *c6[3], *c7, *c8[3], *c9[3], *c10, *c11, *c_weigh;
 	
@@ -454,10 +462,10 @@ void DrawCanvas_isobar(TString fileName){
 	// ====================================================================
 	//  c_weigh: Same - Mix(weight)
 	// ====================================================================	
-	c_weigh = new TCanvas("c_weigh", "Weighted M_inv", 1400, 600);
-	c_weigh->Divide(3, 2);
+	c_weigh = new TCanvas("c_weigh", "Weighted M_inv", 1400, 800);
+	c_weigh->Divide(3, 3);
 
-	for(int ipid = 0; ipid < 2; ipid++){ // 0:LL, 1:AA
+	for(int ipid = 0; ipid < 3; ipid++){ // 0:LL, 1:AA
 
 		TH1D *hSame_for_weigh = hmass_same[0][ipid][0][2];
 		TH1D *hMix_noweigh = hmass_mix[0][ipid][0][2];

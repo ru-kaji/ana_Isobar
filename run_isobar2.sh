@@ -32,5 +32,7 @@ echo "Done! All processes finished."
 
 trap - EXIT
 
+echo -e "$combined_out\nrun_isobar2.sh" | mail -s "Finished" s2520168@u.tsukuba.ac.jp
+
 sleep 7
 # read dummy

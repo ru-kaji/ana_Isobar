@@ -156,7 +156,7 @@ Int_t CorTreeAnalyzer::Init()
 	mAchId = -1;
 	for( int ict=0; ict<NCent; ict++ ) mAcWd[ict] = 1.0;
 	//SetChAsymWidthRun11();
-	SetChAsymWidthRun14();
+	//SetChAsymWidthRun14();
 
 	string sSw[] = { "OFF", "ON" };
 	//string sSwEff[] = { "OFF", "ON (run14/run11)", "ON (run14/run11+embedding-eff.)" };
@@ -216,7 +216,7 @@ Int_t CorTreeAnalyzer::Init()
 	int irun;
 	if     ( mRunYear==2011 ) irun = 0;
 	else if( mRunYear==2014 ) irun = 1;
-	else                      irun = 2;
+	else                      irun = 2; //2018 <-合ってる？
 	
 	f_sgmIM[0] = new TF1( "f_sgmIM", "pol2", 0, 100 );
 	for( int k=0; k<3; k++ ){
@@ -552,7 +552,7 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 			fPsi_raw[1] = atan2(  tpcQyf, tpcQxf  ) / (ih+1.0);
 			fPsi_raw[2] = atan2( tpcQybf, tpcQxbf ) / (ih+1.0);
 
-
+/*
 			if( mCalibMode ){ 
 				hQvRec[ih][0][fQcent][fVz]->Fill( runindex, tpcQxb );
 				hQvRec[ih][1][fQcent][fVz]->Fill( runindex, tpcQyb );
@@ -593,7 +593,7 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 					hPsiCor[ih][0]->Fill( fCent, cos( (ih+1.0)*(fPsi[ih][0]-fPsi[ih][1]) ) );
 					hPsiCor[ih][1]->Fill( fCent, sin( (ih+1.0)*(fPsi[ih][0]-fPsi[ih][1]) ) );
 				}
-			}
+			}*/
 		}// ih
 
 		if( mCalibMode ) return 0;
@@ -609,23 +609,25 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 	for( int iep=0; iep<3; iep++ ){
 		zdcPsi[iep] = p_eve->get_zdcPsi(iep);
 	}
+	/*
 	if( zdcPsi[0]>-100 && zdcPsi[1]>-100 ){
 		hZDCPsiCor[0]->Fill( fCent, cos(zdcPsi[0]-zdcPsi[1]));
 		hZDCPsiCor[1]->Fill( fCent, sin(zdcPsi[0]-zdcPsi[1]));
 		hZDCPsiCor[2]->Fill( fCent, cos(2.0*(zdcPsi[0]-zdcPsi[1])) );
 		hZDCPsiCor[3]->Fill( fCent, sin(2.0*(zdcPsi[0]-zdcPsi[1])) );
-	}
+	}*/
 
 	float bbcPsiN[2][3];
 	for( int isub=0; isub<3; isub++ ){
 		bbcPsiN[0][isub] = p_eve->get_bbcPsi1(isub);
 		bbcPsiN[1][isub] = p_eve->get_bbcPsi2(isub);
 	}
+	/*
 	for( int ih=0; ih<2; ih++ ){
 		if( bbcPsiN[ih][0]>-100 && bbcPsiN[ih][1]>-100 ){
 			hBBCPsiCor[ih]->Fill( fCent, cos( (ih+1.0)*(bbcPsiN[ih][0]-bbcPsiN[ih][1])) );
 		}
-	}
+	}*/
 
 	float tpcPsiN[3][6];
 	for( int isub=0; isub<6; isub++ ){ // (E,W,E+W) x (|eta|>0.1,|eta|>0.5)
@@ -633,6 +635,7 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 		tpcPsiN[1][isub] = p_eve->get_tpcPsi3(isub);
 		tpcPsiN[2][isub] = p_eve->get_tpcPsi4(isub);
 	}
+	/*
 	for( int ih=0; ih<3; ih++ ){
 		if( tpcPsiN[ih][0]>-100 && tpcPsiN[ih][1]>-100 ){
 			hTPCPsiCor[ih]->Fill( fCent, cos( (ih+2.0)*(tpcPsiN[ih][0]-tpcPsiN[ih][1]) ) );
@@ -640,14 +643,14 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 		if( tpcPsiN[ih][3]>-100 && tpcPsiN[ih][4]>-100 ){
 			hTPCPsiCor[ih+3]->Fill( fCent, cos( (ih+2.0)*(tpcPsiN[ih][3]-tpcPsiN[ih][4]) ) );
 		}
-	}
+	}*/
 
 	float epdPsiN[3][3];
 	for( int isub=0; isub<3; isub++ ){ // (E,W,E+W) 
 		epdPsiN[0][isub] = p_eve->get_epdPsi2(isub);
 		epdPsiN[1][isub] = p_eve->get_epdPsi3(isub);
 		epdPsiN[2][isub] = p_eve->get_epdPsi4(isub);
-	}
+	}/*
 	for( int ih=0; ih<3; ih++ ){
 		if( epdPsiN[ih][0]>-100 && epdPsiN[ih][1]>-100 ){
 			hEPDPsiCor[ih]->Fill( fCent, cos( (ih+2.0)*(epdPsiN[ih][0]-epdPsiN[ih][1]) ) );
@@ -656,7 +659,7 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 	if( p_eve->get_epdPsi1(2)>-100 && zdcPsi[0]>-100 && zdcPsi[1]>-100 ){
 		hEPDZDCPsi1Cor[0]->Fill( fCent, cos(p_eve->get_epdPsi1(2)-zdcPsi[0]) );
 		hEPDZDCPsi1Cor[1]->Fill( fCent, cos(p_eve->get_epdPsi1(2)-zdcPsi[1]) );
-	}
+	}*/
 
 
 	if( tpcPsiN[0][2]>-100 ) hCentIso8->Fill((15-fQcent)/2);
@@ -756,14 +759,14 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 		//cout << "before fill hinvM, invM=" << invM << endl;
 		//hinvM->Fill(invM);
 		//cout << "after fill hinvM, invM=" << invM << endl;
-
+/*
 		if( invM>massLamMin && invM<massLamMax ) hAPTvsCent[fCH]->Fill( Cent, ptv0 );
 
 
 		// for tof matching efficiecny
 		if( fabs(etav0)<0.5 ){
 			hIMvsPtv0[fCH][iCent][tofid]->Fill( invM, ptv0, fTrgEff );
-		}
+		}*/
 		
 		
 		if( invM>1.07 && invM<1.20 ){ 
@@ -1474,6 +1477,12 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 
 											hmass_mix_weigh_BW[ipid][pairid]->Fill(massLL_mix, weight_BW);
 											hqinv_mix_weigh_BW[ipid][pairid]->Fill(qinv_mix, weight_BW);
+
+											hmass_mix_weigh[3][pairid]->Fill(massLL_mix, weight);
+                                            hqinv_mix_weigh[3][pairid]->Fill(qinv_mix, weight);
+
+                                            hmass_mix_weigh_BW[3][pairid]->Fill(massLL_mix, weight_BW);
+                                            hqinv_mix_weigh_BW[3][pairid]->Fill(qinv_mix, weight_BW);
 										}
 									}
 								}
@@ -1634,8 +1643,8 @@ void CorTreeAnalyzer::DefHistograms(){
 	hCentIso8 = new TH1D("hCentIso8","hCentIso8",8,0,8);
 
 	const char* pidName2[2]  = {"L", "A"};
-	const char* pidName[3]  = {"LL", "AA", "LA"};
-    const char* pidTitle[3] = {"#Lambda#Lambda", "#bar{#Lambda}#bar{#Lambda}", "#Lambda#bar{#Lambda}"};
+	const char* pidName[4]  = {"LL", "AA", "LA", "LL+AA"};
+    const char* pidTitle[4] = {"#Lambda#Lambda", "#bar{#Lambda}#bar{#Lambda}", "#Lambda#bar{#Lambda}", "#Lambda#Lambda+#bar{#Lambda}#bar{#Lambda}"};
 
 	const char* dgPairName[4] = {"pp", "pipi", "ppi", "pip"};
     
@@ -1767,6 +1776,14 @@ void CorTreeAnalyzer::DefHistograms(){
 		} // ipair loop
 	} // ipid loop 
 
+	for(int ipair=0; ipair<4; ipair++){
+		hmass_mix_weigh[3][ipair] = new TH1D(Form("hmass_mix_weigh_%s_%s", pidName[3], pairName[ipair]), Form("Mix (weigh) %s %s;M_{inv} (GeV/c^{2});Counts", pidTitle[3], pairTitle[ipair]), 100, 2.23, 2.28);
+		hqinv_mix_weigh[3][ipair] = new TH1D(Form("hqinv_mix_weigh_%s_%s", pidName[3], pairName[ipair]), Form("Mix (weigh) %s %s;Q_{inv} (GeV/c);Counts", pidTitle[3], pairTitle[ipair]), bin_q, 0.0, 4.0);
+
+		hmass_mix_weigh_BW[3][ipair] = new TH1D(Form("hmass_mix_weigh_BW_%s_%s", pidName[3], pairName[ipair]), Form("Mix (weigh, BW) %s %s;M_{inv} (GeV/c^{2});Counts", pidTitle[3], pairTitle[ipair]), 100, 2.23, 2.28);
+		hqinv_mix_weigh_BW[3][ipair] = new TH1D(Form("hqinv_mix_weigh_BW_%s_%s", pidName[3], pairName[ipair]), Form("Mix (weigh, BW) %s %s;Q_{inv} (GeV/c);Counts", pidTitle[3], pairTitle[ipair]), bin_q, 0.0, 4.0);
+	} // ipair loop
+
 	//Double_t achbins[Nasm+1] = { -4.0, -0.86, -0.26, 0.26, 0.86, 4.0 };
 	//hAchBin  = new TProfile( Form("hAchBin"), Form("hAchBin"), Nasm, achbins, -10, 10 );
 	//hAchpBin = new TProfile( Form("hAchpBin"), Form("hAchpBin"), Nasm, achbins, -10, 10 );
@@ -1774,7 +1791,7 @@ void CorTreeAnalyzer::DefHistograms(){
 	//	if( k<2 ) hAchCent[k] = new TH2F( Form("hAchCent_%d",k), Form("hAchCent_%d",k), 8, 0, 8, 50, -0.5, 0.5 );
 	//	else      hAchCent[k] = new TH2F( Form("hAchCent_%d",k), Form("hAchCent_%d",k), 8, 0, 8, 50, -6, 6 );
 	//}
-
+/*
 	for( int ih=0; ih<2; ih++ ){
 		for( int ics=0; ics<2; ics++ ){ 
 			hPsiCor[ih][ics] = new TProfile( Form("hPsiCor_%d_%d",ih,ics), Form("hPsiCor_%d_%d",ih,ics), 9, 0, 9 );
@@ -2210,19 +2227,18 @@ void CorTreeAnalyzer::DefHistograms(){
 				hIMvsPtv0[ich][ict][id] = new TH2F( Form("hIMvsPtv0_%d_%d_%d",ich,ict,id), Form("hIMvsPtv0_%d_%d_%d",ich,ict,id), 100, 1.07, 1.17, 40, 0.5, 4.5 );
 	}	}	}
 
-	for( int ip=0; ip<2; ip++ ){
-		hdgApt[ip] = new TH1F( Form("hdgApt_%d",ip), Form("Daughter Baryon p_{T} (PID=%d);p_{T} [GeV/c];Counts",ip), 100, 0, 10 );
-		hdgBpt[ip] = new TH1F( Form("hdgBpt_%d",ip), Form("Daughter Meson p_{T} (PID=%d);p_{T} [GeV/c];Counts",ip), 100, 0, 10 );
-	}
-
 	// slefcor study
 	for( int ich=0; ich<2; ich++ ){
 		for( int k=0; k<8; k++ ){
 			hPz2SCvsCent[ich][k] = new TProfile( Form("hPz2SCvsCent_%d_%d",ich,k), Form("hPz2SCvsCent_%d_%d",ich,k), 8, 0, 8, -10, 10 );
 			hPz2SCvsCent[ich][k]->Sumw2();
 	}	}
+				*/
 
-
+	for( int ip=0; ip<2; ip++ ){
+		hdgApt[ip] = new TH1F( Form("hdgApt_%d",ip), Form("Daughter Baryon p_{T} (PID=%d);p_{T} [GeV/c];Counts",ip), 100, 0, 10 );
+		hdgBpt[ip] = new TH1F( Form("hdgBpt_%d",ip), Form("Daughter Meson p_{T} (PID=%d);p_{T} [GeV/c];Counts",ip), 100, 0, 10 );
+	}
 
 }
 
@@ -2323,6 +2339,13 @@ void CorTreeAnalyzer::WriteHistograms(){
 		} // ipair loop
 	} // pid loop
 
+	for(int ipair = 0; ipair < 4; ipair++) {
+		hmass_mix_weigh[3][ipair]->Write();
+		hqinv_mix_weigh[3][ipair]->Write();
+		hmass_mix_weigh_BW[3][ipair]->Write();
+		hqinv_mix_weigh_BW[3][ipair]->Write();
+	}
+
 	/*// EP calibration
 	if( mCalibMode==1 ){ 
 		for( int ih=0; ih<2; ih++ ){
@@ -2355,7 +2378,7 @@ void CorTreeAnalyzer::WriteHistograms(){
 	for( int ih=0; ih<6; ih++ ) hTPCPsiCor[ih]->Write();
 	for( int ih=0; ih<2; ih++ ) hBBCPsiCor[ih]->Write();
 	for( int ih=0; ih<3; ih++ ) hEPDPsiCor[ih]->Write();
-	for( int k=0; k<2; k++ )	hEPDZDCPsi1Cor[k]->Write();*/
+	for( int k=0; k<2; k++ )	hEPDZDCPsi1Cor[k]->Write();
 
 
 	//hAchBin ->Write();
@@ -2396,7 +2419,7 @@ void CorTreeAnalyzer::WriteHistograms(){
 			}
 			hA0pt[ich][ict]->Write();
 		}
-	}
+	}*/
 
 	// ach study
 	//for( int ich=0; ich<2; ich++ ){
@@ -2422,7 +2445,7 @@ void CorTreeAnalyzer::WriteHistograms(){
 	//		for( int iph=0; iph<NphiRP; iph++ ){
 	//			hInvMXYZ[ich][iep][iph]->Write();
 	//}	}	}
-
+/*
 	//// eta 
 	for( int ich=0; ich<2; ich++ ){
 		for( int iep=0; iep<NpolRP; iep++ ){
@@ -2430,7 +2453,7 @@ void CorTreeAnalyzer::WriteHistograms(){
 				for( int iph=0; iph<NphiRP; iph++ ){
 					hIMvsPzEta[ich][iep][ieta][iph]->Write();
 					hInvMEta[ich][iep][ieta][iph]->Write();
-	}	}	}	}
+	}	}	}	}*/
 
 	//// higher order
 	//for( int ih=0; ih<2; ih++ ){
@@ -2455,7 +2478,7 @@ void CorTreeAnalyzer::WriteHistograms(){
 	//				for( int iph=0; iph<NphiRP; iph++ ){
 	//					hIMvsPzNPtDph[ih][ich][ict][ipt][iph]->Write();
 	//}	}	}	}	}
-
+/*
 	// profile
 	for( int ich=0; ich<2; ich++ ){
 		for( int irp=0; irp<NpolRP; irp++ ){
@@ -2669,14 +2692,14 @@ void CorTreeAnalyzer::WriteHistograms(){
 	for( int ich=0; ich<2; ich++ ){
 		for( int k=0; k<8; k++ ){
 			hPz2SCvsCent[ich][k]->Write();
-	}	}
+	}	}*/
 	
 	for( int ip=0; ip<2; ip++ ){
 		if(hdgApt[ip]) hdgApt[ip]->Write();
 		if(hdgBpt[ip]) hdgBpt[ip]->Write();
 	}
 }
-
+/*
 void CorTreeAnalyzer::SetChAsymWidthRun14(){
 
 	// run14
@@ -2751,7 +2774,7 @@ void CorTreeAnalyzer::SysStudyN(int fhar, int fct, int fch, int fpt, float &fRP,
 	// off-peak profile with larger BG
 	if( invM>1.135 && invM<1.17 ) hBgCtLg[fhar][fch][0]->Fill( (fct+0.5)*10.0, fcosTheStr*sinN, fTrgEff*fTrkEff );
 	if( invM>1.085 && invM<1.10 ) hBgCtLg[fhar][fch][1]->Fill( (fct+0.5)*10.0, fcosTheStr*sinN, fTrgEff*fTrkEff );
-}
+} // WriteHistgram
 
 void CorTreeAnalyzer::fillSysHistoN(int sid, int fhar, int fct, int fch, int fpt, int fph, float &invM, float &cosTheStr, float &sinN, float &trgEff, float &trkEff ){
 
@@ -2772,7 +2795,7 @@ void CorTreeAnalyzer::fillSysHistoN(int sid, int fhar, int fct, int fch, int fpt
 
 	if( fhar==0 ) hIMctSys[fch][fct]->Fill( invM, sid, trgEff*trkEff );
 	hIMvsPzNctSys[fhar][fch][fct]->Fill( invM, sid, cosTheStr*sinN, trgEff*trkEff );
-}
+}*/
 
 
 int CorTreeAnalyzer::LoadRunList(){
@@ -2834,7 +2857,7 @@ int CorTreeAnalyzer::LoadEPcalibPara(){
 	}	}	}	}
 
 	return 0;
-}*/
+}
 
 void CorTreeAnalyzer::doRecenterQv(float &fqv, int fhar, int fxy, int fbf, int fcent, int fz, int index){
 
@@ -2873,6 +2896,7 @@ float CorTreeAnalyzer::getTrkEff(float& pt, int& fcent, int& fprt, int fid){
 	
 	return eff;
 }
+
 
 int CorTreeAnalyzer::SetEfficiencyRun11(){
 
@@ -2970,7 +2994,7 @@ int CorTreeAnalyzer::SetRelativeEfficiencyRun14(){
 
 	in1.close();
 	return 0;	
-}
+}*/
 
 void CorTreeAnalyzer::SetNormEffRun11(){
 
