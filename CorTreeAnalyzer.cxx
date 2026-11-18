@@ -1505,6 +1505,8 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 						if(pairid == 0){ //SS
 							hcosAngle_mix[ipid]->Fill(cosAngle_mix);
 							hAngle_mix[ipid]->Fill(angle_mix);
+
+							h2_q_m_mix[ipid]->Fill(qinv_mix, massLL_mix);
 						}
 						
 
@@ -1660,7 +1662,7 @@ void CorTreeAnalyzer::DefHistograms(){
 	//const char* centTitle[9] = {"0-10%", "10-20%", "20-30%", "30-40%", "40-50%", "50-60%", "60-70%", "70-80%", "All"};
 
 	int bin_m = 200;
-	int bin_q = 400;
+	int bin_q = 250;
 
 	for(int ipid =0; ipid<2; ipid++){
 
@@ -1683,6 +1685,7 @@ void CorTreeAnalyzer::DefHistograms(){
 		hcosAngle_mix[ipid]  = new TH1D(Form("hcosAngle_mix_%s", pidName[ipid]), Form("hcosAngle_mix_%s", pidName[ipid]), 100, -1.0, 1.0);
 		hAngle_mix[ipid] 	 = new TH1D(Form("hAngle_mix_%s", pidName[ipid]), Form("hAngle_mix_%s", pidName[ipid]), 100, -180.0, 180.0);
 
+		h2_q_m_mix[ipid]	 = new TH2D(Form("h2_q_m_mix_%s", pidName[ipid]), Form("h2_q_m_mix_%s", pidName[ipid]), bin_q, 0.0, 2.0, 100, 2.23, 2.28);
 
 		for(int idgpair = 0; idgpair < 4; idgpair++){
 			hDeta[ipid][idgpair] 	 = new TH1D(Form("h1D_Deta_%s_%s", pidName[ipid], dgPairName[idgpair]), Form("h1D_Deta_%s_%s", pidName[ipid], dgPairName[idgpair]), 100, -1.5, 1.5);
@@ -1750,29 +1753,29 @@ void CorTreeAnalyzer::DefHistograms(){
 					for(int icut = 0; icut< 5; icut++){
 						TString nameQinvS_cut = Form("hqinv_same_%d_%s_%s_%s_%s", icut, pidName[ipid], pairName[ipair], spinName7[ispin], centName[icent]);
 						TString titleQinvS_cut = Form("Same %d %s %s %s %s;Q_{inv} (GeV/c);Counts", icut, pidTitle[ipid], pairTitle[ipair], spinTitle7[ispin], centName[icent]);
-						hqinv_same_cut[icut][ipid][ipair][ispin][icent] = new TH1D(nameQinvS_cut, titleQinvS_cut, bin_q, 0.0, 4.0);
+						hqinv_same_cut[icut][ipid][ipair][ispin][icent] = new TH1D(nameQinvS_cut, titleQinvS_cut, bin_q, 0.0, 2.5);
 
 						TString nameQinvM_cut = Form("hqinv_mix_%d_%s_%s_%s_%s", icut, pidName[ipid], pairName[ipair], spinName7[ispin], centName[icent]);
                 		TString titleQinvM_cut = Form("Mix %d %s %s %s %s;Q_{inv} (GeV/c);Counts", icut, pidTitle[ipid], pairTitle[ipair], spinTitle7[ispin], centName[icent]);
-                		hqinv_mix_cut[icut][ipid][ipair][ispin][icent] = new TH1D(nameQinvM_cut, titleQinvM_cut, bin_q, 0.0, 4.0);
+                		hqinv_mix_cut[icut][ipid][ipair][ispin][icent] = new TH1D(nameQinvM_cut, titleQinvM_cut, bin_q, 0.0, 2.5);
 					}
 					
 					TString nameQinvS_nocut = Form("hqinv_same_%s_%s_%s_%s", pidName[ipid], pairName[ipair], spinName7[ispin], centName[icent]);
 					TString titleQinvS_nocut = Form("Same %s %s %s %s;Q_{inv} (GeV/c);Counts", pidTitle[ipid], pairTitle[ipair], spinTitle7[ispin], centName[icent]);
-					hqinv_same_nocut[ipid][ipair][ispin][icent] = new TH1D(nameQinvS_nocut+"nocut", titleQinvS_nocut+"nocut", bin_q, 0.0, 4.0);
+					hqinv_same_nocut[ipid][ipair][ispin][icent] = new TH1D(nameQinvS_nocut+"nocut", titleQinvS_nocut+"nocut", bin_q, 0.0, 2.5);
 
 					TString nameQinvM_nocut = Form("hqinv_mix_%s_%s_%s_%s", pidName[ipid], pairName[ipair], spinName7[ispin], centName[icent]);
                 	TString titleQinvM_nocut = Form("Mix %s %s %s %s;Q_{inv} (GeV/c);Counts", pidTitle[ipid], pairTitle[ipair], spinTitle7[ispin], centName[icent]);
-					hqinv_mix_nocut[ipid][ipair][ispin][icent] = new TH1D(nameQinvM_nocut+"nocut", titleQinvM_nocut+"nocut", bin_q, 0.0, 4.0);
+					hqinv_mix_nocut[ipid][ipair][ispin][icent] = new TH1D(nameQinvM_nocut+"nocut", titleQinvM_nocut+"nocut", bin_q, 0.0, 2.5);
 
 				} // icent roop
 			}// ispin loop
 
 			hmass_mix_weigh[ipid][ipair] = new TH1D(Form("hmass_mix_weigh_%s_%s", pidName[ipid], pairName[ipair]), Form("Mix (weigh) %s %s;M_{inv} (GeV/c^{2});Counts", pidTitle[ipid], pairTitle[ipair]), 100, 2.23, 2.28);
-			hqinv_mix_weigh[ipid][ipair] = new TH1D(Form("hqinv_mix_weigh_%s_%s", pidName[ipid], pairName[ipair]), Form("Mix (weigh) %s %s;Q_{inv} (GeV/c);Counts", pidTitle[ipid], pairTitle[ipair]), bin_q, 0.0, 4.0);
+			hqinv_mix_weigh[ipid][ipair] = new TH1D(Form("hqinv_mix_weigh_%s_%s", pidName[ipid], pairName[ipair]), Form("Mix (weigh) %s %s;Q_{inv} (GeV/c);Counts", pidTitle[ipid], pairTitle[ipair]), bin_q, 0.0, 2.5);
 
 			hmass_mix_weigh_BW[ipid][ipair] = new TH1D(Form("hmass_mix_weigh_BW_%s_%s", pidName[ipid], pairName[ipair]), Form("Mix (weigh, BW) %s %s;M_{inv} (GeV/c^{2});Counts", pidTitle[ipid], pairTitle[ipair]), 100, 2.23, 2.28);
-			hqinv_mix_weigh_BW[ipid][ipair] = new TH1D(Form("hqinv_mix_weigh_BW_%s_%s", pidName[ipid], pairName[ipair]), Form("Mix (weigh, BW) %s %s;Q_{inv} (GeV/c);Counts", pidTitle[ipid], pairTitle[ipair]), bin_q, 0.0, 4.0);
+			hqinv_mix_weigh_BW[ipid][ipair] = new TH1D(Form("hqinv_mix_weigh_BW_%s_%s", pidName[ipid], pairName[ipair]), Form("Mix (weigh, BW) %s %s;Q_{inv} (GeV/c);Counts", pidTitle[ipid], pairTitle[ipair]), bin_q, 0.0, 2.5);
 		} // ipair loop
 	} // ipid loop 
 
@@ -2274,6 +2277,8 @@ void CorTreeAnalyzer::WriteHistograms(){
 		hAngle_same[ipid]->Write();
 		hcosAngle_mix[ipid]->Write();
 		hAngle_mix[ipid]->Write();
+
+		h2_q_m_mix[ipid]->Write();
 
 		for(int idgpair = 0; idgpair < 4; idgpair++){
 			hDeta[ipid][idgpair]->Write();
