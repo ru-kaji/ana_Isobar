@@ -90,7 +90,7 @@ Int_t CorTreeAnalyzer::Init()
 
 	// Event planes and flow vectors
 	// -------------------------------------------------------
-	/*
+	/* my condition
 	// Topological cuts
 	// -------------------------------------------------------
 	// 0-10%
@@ -174,7 +174,7 @@ Int_t CorTreeAnalyzer::Init()
 	if( mSelfCor || mCalibMode ){
 		if( LoadRunList()==-1 )     return -1;
 	}
-
+/*
 	TFile *fWeight = TFile::Open("weight_func.root", "READ");
     if(fWeight && !fWeight->IsZombie()){
         hWeightFunc = (TH1D*)fWeight->Get("hWeight");
@@ -189,7 +189,7 @@ Int_t CorTreeAnalyzer::Init()
         std::cout << "⚠️ Warning: Could not load weight_func.root! Weight will be 1.0" << std::endl;
         hWeightFunc = nullptr;
         hWeightFunc_BW = nullptr;
-    }
+    }*/
 
 	/*if( mSelfCor ){
 		if( LoadEPcalibPara()==-1 ) return -1;
@@ -270,13 +270,17 @@ bool CorTreeAnalyzer::IsPairClose_pp(float eta1, float phi1, float eta2, float p
 			return true; // too close (Merging or Splitting)
 		}
 	}else if(ipid == 0 || ipid == 1){
-		float cut_eta = 0.02;
+		float cut_eta = 0.02; //Kehao
 		float cut_phi = 0.03;
-
-		//float r2 = (deta * deta) / (cut_eta * cut_eta) + (dphi * dphi) / (cut_phi * cut_phi);
-		//if (r2 < 1.0) return true; 
-
 		if( deta < 0.02 && fabs(dphi) < 0.03 ) return true; // Kehao cut
+
+		/*
+		// my cut
+		float cut_eta = 0.04;
+		float cut_phi = 0.05;
+		float r2 = (deta * deta) / (cut_eta * cut_eta) + (dphi * dphi) / (cut_phi * cut_phi); //me
+		if (r2 < 1.0) return true; //me
+		*/
 	}
 
     return false;
@@ -1452,6 +1456,7 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 							}
 						if( IsPairClose_pip(dgBeta[pid_curr][i], phiStarPi_curr, etaP_past, phiStarP_past, ipid) ) continue; // pi - p		
 */
+/*
 						double weight = 1.0;
 						double weight_BW = 1.0;
                         if ((ipid == 0 || ipid == 1) && hWeightFunc != nullptr && hWeightFunc_BW != nullptr) {
@@ -1462,14 +1467,16 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 								int bin_BW = hWeightFunc_BW->FindBin(qinv_mix);
 								weight_BW = hWeightFunc_BW->GetBinContent(bin_BW);  
                             }
-                        }
+                        }*/
 
 							 if (pairid >= 0 && pairid <= 3) {
 								for (int s : spinid) {
 									hmass_mix_cut[3][ipid][pairid][s]->Fill(massLL_mix);
 									hqinv_mix_cut[3][ipid][pairid][s][iCent]->Fill(qinv_mix);
 									hqinv_mix_cut[3][ipid][pairid][s][8]->Fill(qinv_mix);
-
+									
+									if(pairid == 0 && s == 2) h2_q_m_mix[ipid][s]->Fill(qinv_mix, massLL_mix); //SSのAntiときのみ
+/*
 									if( ipid==0 || ipid==1 ){
 										if(s==2){
 											hmass_mix_weigh[ipid][pairid]->Fill(massLL_mix, weight);
@@ -1483,8 +1490,8 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 
                                             hmass_mix_weigh_BW[3][pairid]->Fill(massLL_mix, weight_BW);
                                             hqinv_mix_weigh_BW[3][pairid]->Fill(qinv_mix, weight_BW);
-										}
-									}
+										}*/
+									
 								}
 							}
 						/*
@@ -1505,8 +1512,6 @@ Int_t CorTreeAnalyzer::ProcessEvent()
 						if(pairid == 0){ //SS
 							hcosAngle_mix[ipid]->Fill(cosAngle_mix);
 							hAngle_mix[ipid]->Fill(angle_mix);
-
-							h2_q_m_mix[ipid]->Fill(qinv_mix, massLL_mix);
 						}
 						
 
@@ -1661,7 +1666,7 @@ void CorTreeAnalyzer::DefHistograms(){
 	const char* centName[9]  = {"0-10%", "10-20%", "20-30%", "30-40%", "40-50%", "50-60%", "60-70%", "70-80%", "All"};
 	//const char* centTitle[9] = {"0-10%", "10-20%", "20-30%", "30-40%", "40-50%", "50-60%", "60-70%", "70-80%", "All"};
 
-	int bin_m = 200;
+	int bin_m = 100;
 	int bin_q = 250;
 
 	for(int ipid =0; ipid<2; ipid++){
@@ -1685,8 +1690,6 @@ void CorTreeAnalyzer::DefHistograms(){
 		hcosAngle_mix[ipid]  = new TH1D(Form("hcosAngle_mix_%s", pidName[ipid]), Form("hcosAngle_mix_%s", pidName[ipid]), 100, -1.0, 1.0);
 		hAngle_mix[ipid] 	 = new TH1D(Form("hAngle_mix_%s", pidName[ipid]), Form("hAngle_mix_%s", pidName[ipid]), 100, -180.0, 180.0);
 
-		h2_q_m_mix[ipid]	 = new TH2D(Form("h2_q_m_mix_%s", pidName[ipid]), Form("h2_q_m_mix_%s", pidName[ipid]), bin_q, 0.0, 2.0, 100, 2.23, 2.28);
-
 		for(int idgpair = 0; idgpair < 4; idgpair++){
 			hDeta[ipid][idgpair] 	 = new TH1D(Form("h1D_Deta_%s_%s", pidName[ipid], dgPairName[idgpair]), Form("h1D_Deta_%s_%s", pidName[ipid], dgPairName[idgpair]), 100, -1.5, 1.5);
 			hDphi[ipid][idgpair] 	 = new TH1D(Form("h1D_Dphi_%s_%s", pidName[ipid], dgPairName[idgpair]), Form("h1D_Dphi_%s_%s", pidName[ipid], dgPairName[idgpair]), 100, -1.5, 1.5);
@@ -1696,6 +1699,8 @@ void CorTreeAnalyzer::DefHistograms(){
 		}
 
 		for(int ispin = 0; ispin < 3; ispin++) {
+
+			h2_q_m_mix[ipid][ispin]	 = new TH2D(Form("h2_q_m_mix_%s_%s", pidName[ipid], spinName[ispin]), Form("Q_{inv} vs M_{inv} _%s_%s; Q_{inv}(GeV/c); M_{inv}(GeV/c^{2})", pidName[ipid], spinName[ispin]), bin_q, 0.0, 2.5, 100, 2.23, 2.28);
 			
 			hDetaDphiStar1[ipid][ispin] = new TH2D(Form("hDetaDphiStar1_%s_%s", pidName[ipid], spinName[ispin]), Form("hDetaDphiStar1_%s_%s_%s", dgPairName[0], pidName[ipid], spinName[ispin]), 100, -0.5, 0.5, 100, -0.5, 0.5); //100, -0.5, 0.5(Kehao)
 			hDetaDphiStar2[ipid][ispin] = new TH2D(Form("hDetaDphiStar2_%s_%s", pidName[ipid], spinName[ispin]), Form("hDetaDphiStar2_%s_%s_%s", dgPairName[1], pidName[ipid], spinName[ispin]), 100, -0.5, 0.5, 100, -0.5, 0.5);
@@ -1732,22 +1737,22 @@ void CorTreeAnalyzer::DefHistograms(){
 				// === Same Event ===
 				TString nameMassS = Form("hmass_same_%s_%s_%s", pidName[ipid], pairName[ipair], spinName7[ispin]);
                 TString titleMassS = Form("Same %s %s %s;M_{inv} (GeV/c^{2});Counts", pidTitle[ipid], pairTitle[ipair], spinTitle7[ispin]);
-				hmass_same_nocut[ipid][ipair][ispin] = new TH1D(nameMassS+"nocut", titleMassS+"nocut", bin_m, 1.0, 5.5);
+				hmass_same_nocut[ipid][ipair][ispin] = new TH1D(nameMassS+"nocut", titleMassS+"nocut", bin_m, 2.23, 2.28);
 
                 // === Mixed Event ===
                 TString nameMassM = Form("hmass_mix_%s_%s_%s", pidName[ipid], pairName[ipair], spinName7[ispin]);
                 TString titleMassM = Form("Mix %s %s %s;M_{inv} (GeV/c^{2});Counts", pidTitle[ipid], pairTitle[ipair], spinTitle7[ispin]);
-				hmass_mix_nocut[ipid][ipair][ispin] = new TH1D(nameMassM+"nocut", titleMassM+"nocut", bin_m, 1.0, 5.5);
+				hmass_mix_nocut[ipid][ipair][ispin] = new TH1D(nameMassM+"nocut", titleMassM+"nocut", bin_m, 2.23, 2.28);
 
 				//hmass_same_zoom[ipid][ipair][ispin] = new TH1F(nameMassS, titleMassS, 200, 0.1, 0.5);
 				//hmass_mix_zoom[ipid][ipair][ispin] = new TH1F(nameMassM, titleMassM, 200, 0.1, 0.5);
 				TString nameMassS_low = Form("hmass_same_low_%s_%s_%s", pidName[ipid], pairName[ipair], spinName7[ispin]);
 				TString titleMassS_low = Form("Same Low %s %s %s;M_{inv} (GeV/c^{2});Counts", pidTitle[ipid], pairTitle[ipair], spinTitle7[ispin]);
-				hmass_same_low[ipid][ipair][ispin] = new TH1D(nameMassS_low, titleMassS_low, bin_m, 2.22, 2.6);
+				hmass_same_low[ipid][ipair][ispin] = new TH1D(nameMassS_low, titleMassS_low, bin_m, 2.23, 2.28);
 
 				TString nameMassM_low = Form("hmass_mix_low_%s_%s_%s", pidName[ipid], pairName[ipair], spinName7[ispin]);
 				TString titleMassM_low = Form("Mix Low %s %s %s;M_{inv} (GeV/c^{2});Counts", pidTitle[ipid], pairTitle[ipair], spinTitle7[ispin]);
-				hmass_mix_low[ipid][ipair][ispin] = new TH1D(nameMassM_low, titleMassM_low, bin_m, 2.22, 2.6);
+				hmass_mix_low[ipid][ipair][ispin] = new TH1D(nameMassM_low, titleMassM_low, bin_m, 2.23, 2.28);
             
 				for(int icent = 0; icent < 9; icent++){
 					for(int icut = 0; icut< 5; icut++){
@@ -1778,14 +1783,15 @@ void CorTreeAnalyzer::DefHistograms(){
 			hqinv_mix_weigh_BW[ipid][ipair] = new TH1D(Form("hqinv_mix_weigh_BW_%s_%s", pidName[ipid], pairName[ipair]), Form("Mix (weigh, BW) %s %s;Q_{inv} (GeV/c);Counts", pidTitle[ipid], pairTitle[ipair]), bin_q, 0.0, 2.5);
 		} // ipair loop
 	} // ipid loop 
-
+/*
 	for(int ipair=0; ipair<4; ipair++){
 		hmass_mix_weigh[3][ipair] = new TH1D(Form("hmass_mix_weigh_%s_%s", pidName[3], pairName[ipair]), Form("Mix (weigh) %s %s;M_{inv} (GeV/c^{2});Counts", pidTitle[3], pairTitle[ipair]), 100, 2.23, 2.28);
-		hqinv_mix_weigh[3][ipair] = new TH1D(Form("hqinv_mix_weigh_%s_%s", pidName[3], pairName[ipair]), Form("Mix (weigh) %s %s;Q_{inv} (GeV/c);Counts", pidTitle[3], pairTitle[ipair]), bin_q, 0.0, 4.0);
+		hqinv_mix_weigh[3][ipair] = new TH1D(Form("hqinv_mix_weigh_%s_%s", pidName[3], pairName[ipair]), Form("Mix (weigh) %s %s;Q_{inv} (GeV/c);Counts", pidTitle[3], pairTitle[ipair]), bin_q, 0.0, 2.5);
 
 		hmass_mix_weigh_BW[3][ipair] = new TH1D(Form("hmass_mix_weigh_BW_%s_%s", pidName[3], pairName[ipair]), Form("Mix (weigh, BW) %s %s;M_{inv} (GeV/c^{2});Counts", pidTitle[3], pairTitle[ipair]), 100, 2.23, 2.28);
-		hqinv_mix_weigh_BW[3][ipair] = new TH1D(Form("hqinv_mix_weigh_BW_%s_%s", pidName[3], pairName[ipair]), Form("Mix (weigh, BW) %s %s;Q_{inv} (GeV/c);Counts", pidTitle[3], pairTitle[ipair]), bin_q, 0.0, 4.0);
+		hqinv_mix_weigh_BW[3][ipair] = new TH1D(Form("hqinv_mix_weigh_BW_%s_%s", pidName[3], pairName[ipair]), Form("Mix (weigh, BW) %s %s;Q_{inv} (GeV/c);Counts", pidTitle[3], pairTitle[ipair]), bin_q, 0.0, 2.5);
 	} // ipair loop
+	 */
 
 	//Double_t achbins[Nasm+1] = { -4.0, -0.86, -0.26, 0.26, 0.86, 4.0 };
 	//hAchBin  = new TProfile( Form("hAchBin"), Form("hAchBin"), Nasm, achbins, -10, 10 );
@@ -2278,8 +2284,6 @@ void CorTreeAnalyzer::WriteHistograms(){
 		hcosAngle_mix[ipid]->Write();
 		hAngle_mix[ipid]->Write();
 
-		h2_q_m_mix[ipid]->Write();
-
 		for(int idgpair = 0; idgpair < 4; idgpair++){
 			hDeta[ipid][idgpair]->Write();
 			hDphi[ipid][idgpair]->Write();
@@ -2289,6 +2293,8 @@ void CorTreeAnalyzer::WriteHistograms(){
 		}
 
 		for(int ispin = 0; ispin < 3; ispin++) {
+
+			h2_q_m_mix[ipid][ispin]->Write();
 		
 			hDetaDphiStar1[ipid][ispin]->Write();
 			hDetaDphiStar2[ipid][ispin]->Write();
@@ -2334,22 +2340,22 @@ void CorTreeAnalyzer::WriteHistograms(){
 					
 				} // icent loop
 			} // ispin loop
-
+/*
 			if( ipid == 0 || ipid == 1 ){
                 hmass_mix_weigh[ipid][ipair]->Write();
                 hqinv_mix_weigh[ipid][ipair]->Write();
 				hmass_mix_weigh_BW[ipid][ipair]->Write();
                 hqinv_mix_weigh_BW[ipid][ipair]->Write();
-            }
+            }*/
 		} // ipair loop
 	} // pid loop
-
+/*
 	for(int ipair = 0; ipair < 4; ipair++) {
 		hmass_mix_weigh[3][ipair]->Write();
 		hqinv_mix_weigh[3][ipair]->Write();
 		hmass_mix_weigh_BW[3][ipair]->Write();
 		hqinv_mix_weigh_BW[3][ipair]->Write();
-	}
+	}*/
 
 	/*// EP calibration
 	if( mCalibMode==1 ){ 

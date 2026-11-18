@@ -60,7 +60,7 @@ namespace ROOT {
          instance("StRefMultCorr", ::StRefMultCorr::Class_Version(), "StRefMultCorr.h", 44,
                   typeid(::StRefMultCorr), ::ROOT::Internal::DefineBehavior(ptr, ptr),
                   &::StRefMultCorr::Dictionary, isa_proxy, 4,
-                  sizeof(::StRefMultCorr) );
+                  sizeof(::StRefMultCorr), alignof(::StRefMultCorr) );
       instance.SetNew(&new_StRefMultCorr);
       instance.SetNewArray(&newArray_StRefMultCorr);
       instance.SetDelete(&delete_StRefMultCorr);
@@ -160,8 +160,8 @@ namespace {
 nullptr
     };
     static const char* includePaths[] = {
-"/opt/homebrew/Cellar/root/6.38.04_1/include/root",
-"/Users/kajihara/研究/ana_isobar/StRefMultCorr/",
+"/opt/local/libexec/root6/include/root",
+"/Users/kajihara/ana_Isobar/StRefMultCorr/",
 nullptr
     };
     static const char* fwdDeclCode = R"DICTFWDDCLS(

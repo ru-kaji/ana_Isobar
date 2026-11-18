@@ -1093,7 +1093,7 @@ Int_t StRefMultCorr::getCentralityBin16VzDep() const {
 }
 
 //_________________
-const Int_t StRefMultCorr::getRefX() const {
+Int_t StRefMultCorr::getRefX() const {
   if (      mName.CompareTo("grefmult", TString::kIgnoreCase) == 0 ) return 0; 
   else if ( mName.CompareTo("refmult",  TString::kIgnoreCase) == 0 ) return 1; 
   else if ( mName.CompareTo("refmult2", TString::kIgnoreCase) == 0 ) return 2; 
@@ -1103,7 +1103,7 @@ const Int_t StRefMultCorr::getRefX() const {
 }
 
 //_________________
-const Int_t StRefMultCorr::getNumberOfDatasets() const {
+Int_t StRefMultCorr::getNumberOfDatasets() const {
   if (      mName.CompareTo("grefmult", TString::kIgnoreCase) == 0 ) return nID_gref; 
   else if ( mName.CompareTo("refmult",  TString::kIgnoreCase) == 0 ) return nID_ref1; 
   else if ( mName.CompareTo("refmult2", TString::kIgnoreCase) == 0 ) return nID_ref2; 

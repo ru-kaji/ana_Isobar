@@ -264,7 +264,7 @@ public:
 	enum { kSS=0, kSB=1, kBB=2 };           // シグナル・背景領域
 	enum { kAll=0, kPara=1, kAnti=2 };      // スピン状態
 
-	TH2D *h2_q_m_mix[3]; //[ipid]
+	TH2D *h2_q_m_mix[3][3]; //[ipid][ispin]
 
 	TH1D *hmass_same_cut[5][3][4][7]; //[icut][ipid][ipair][ispin]
 	TH1D *hmass_mix_cut[5][3][4][7];
