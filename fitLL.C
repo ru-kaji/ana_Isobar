@@ -35,9 +35,9 @@ Double_t func_baseline(Double_t *x, Double_t *par);
 void Fit1DLog(TH1F *RHist, TH1F* BHist, TH1F *i_Hcoul);
 void Minimization();
 void FitPML();
-void FitAngle();
+void FitAngle(TString inFileName = "check_phi5eta4_cuttracks_R1p4.root", TString mode = "me");
 
-void fitLL(){
+void fitLL(TString inFileName = "check_isobar_phi5eta4_cuttracks_R1p4.root", TString mode = "me"){
 
 	gStyle->SetOptStat(1111111);
 
@@ -165,7 +165,7 @@ void fitLL(){
 	gcompFit[1]->Draw("L");
 	gcompFit[2]->Draw("L");
 
-	FitAngle();
+	FitAngle(inFileName, mode);
 }
 
 double QS(double q, double r0){
@@ -559,15 +559,20 @@ void FitPML(){
 	cout <<"FitPM()............."<< endl;
 }
 
-void FitAngle() {
-    // 1. ファイルとヒストグラムの読み込み
-    TFile *in = TFile::Open("check_isobar_phi5eta4_cuttracks_R1p4.root");
+void FitAngle(TString inFileName, TString mode) {
+
+    TFile *in = TFile::Open(inFileName, "READ");
+    //TFile *in = TFile::Open("check_isobar_phi5eta4_cuttracks_R1p4.root");
 	//TFile *in_Para = TFile::Open("smallerbin0_90.root");
 	//TFile *in_Anti = TFile::Open("smallerbin90_180.root");
     if(!in || in->IsZombie()) {
         std::cerr << "Error: Could not open root file." << std::endl;
         return;
     }
+
+	TString weightFileName = inFileName;
+    weightFileName.ReplaceAll("check_", "Weight_");
+
 	/*if(!in_Para || !in_Anti) {
         std::cerr << "Error: Could not open  Kehao data root file." << std::endl;
         return;
@@ -575,6 +580,10 @@ void FitAngle() {
     TH1D *hC2_All  = (TH1D*)in->Get("hCF_All_LL+AA");
     TH1D *hC2_Anti = (TH1D*)in->Get("hCF_Anti_LL+AA");
     TH1D *hC2_Para = (TH1D*)in->Get("hCF_Para_LL+AA");
+	if (!hC2_Anti || !hC2_Para) {
+        std::cerr << "Error: hCF_Anti_LL+AA or hCF_Para_LL+AA not found in " << inFileName << std::endl;
+        return;
+    }
 	//TH1D *hC2_Para = (TH1D*)in_Para->Get("hCF_cut2_s_cent0");
     //TH1D *hC2_Anti = (TH1D*)in_Anti->Get("hCF_cut2_s_cent0");
 /*
@@ -643,29 +652,50 @@ void FitAngle() {
     cAll->cd(2);
     TF1 *fit_Anti = new TF1("fit_Anti", func_withBW, 0.01, 0.6, 12);
     //Double_t par_Anti[12] = {0.18, 1.64, 0.60, 9.80, 0.32, -0.07, 0.90, 0.992, 0.00247, 31.15, 0.1, 0.02};
-	Double_t par_Anti[12] = {0.394, 1.64, 0.60, 9.80, 0.25, -0.07, 0.90, 0.992, 0.00247, 1.0, 2.234, 0.02};
+	
 	//Double_t par_Anti[12] = {0.18, 1.64, 0.60, 9.80, 0.32, -0.07, 0.90, 0.992, 0.00247, 31.15, 0.1, 0.02}; //Kehao
-	//Double_t par_Anti[12] = {0.394, 1.64, 0.60, 9.80, 0.32, -0.07, 0.90, 0.992, 0.00247, 31.15, 2.14, 2.13}; 
+	
 
 
-	//Rurika
-	fit_Anti->FixParameter(0, 0.394);       // lambda (固定)
-	fit_Anti->FixParameter(2, 0.60);       // f0 (固定)
-    fit_Anti->FixParameter(3, 9.80);       // d0 (固定)
-    fit_Anti->SetParLimits(1, 1.0, 4.0);   // r0
-    //fit_Anti->SetParLimits(2, -10.0, 10.0);// f0
-    //fit_Anti->SetParLimits(3, 0.0, 20.0);  // d0
-    fit_Anti->SetParLimits(4, 0.15, 0.45);   // a_weight (フリー)
-    fit_Anti->SetParLimits(5, -0.03, 0.03);// a_res (深い凹みを禁止)
-    fit_Anti->SetParLimits(6, 0.1, 1.5);   // r_res
-    fit_Anti->SetParLimits(7, 0.95, 1.05); // p0 (1.0付近に固定)
-    fit_Anti->SetParLimits(8, -0.02, 0.02);// p1 (傾きをほぼゼロに)
-    //fit_Anti->SetParLimits(9, 0.0, 10.0);  // K_scale
-    //fit_Anti->SetParLimits(10, 0.08, 0.12);// E_H
-    //fit_Anti->SetParLimits(11, 0.015, 0.05);// Gamma_H
-	fit_Anti->SetParLimits(9, 0.0, 50.0);   // K_scale
-    fit_Anti->SetParLimits(10, 2.22, 2.30); // E_H (閾値 2.231 GeV付近の探索に限定)
-    fit_Anti->SetParLimits(11, 0.005, 0.05); // Gamma_H (1 MeV ~ 100 MeV の範囲に制限)
+	if(mode == "me"){
+		Double_t par_Anti[12] = {0.394, 1.64, 0.60, 9.80, 0.25, -0.07, 0.90, 0.992, 0.00247, 1.0, 2.234, 0.02};
+
+		fit_Anti->FixParameter(0, 0.394);       // lambda (固定)
+		fit_Anti->FixParameter(2, 0.60);       // f0 (固定)
+		fit_Anti->FixParameter(3, 9.80);       // d0 (固定)
+		fit_Anti->SetParLimits(1, 1.0, 4.0);   // r0
+		//fit_Anti->SetParLimits(2, -10.0, 10.0);// f0
+		//fit_Anti->SetParLimits(3, 0.0, 20.0);  // d0
+		fit_Anti->SetParLimits(4, 0.15, 0.45);   // a_weight (フリー)
+		fit_Anti->SetParLimits(5, -0.03, 0.03);// a_res (深い凹みを禁止)
+		fit_Anti->SetParLimits(6, 0.1, 1.5);   // r_res
+		fit_Anti->SetParLimits(7, 0.95, 1.05); // p0 (1.0付近に固定)
+		fit_Anti->SetParLimits(8, -0.02, 0.02);// p1 (傾きをほぼゼロに)
+		//fit_Anti->SetParLimits(9, 0.0, 10.0);  // K_scale
+		//fit_Anti->SetParLimits(10, 0.08, 0.12);// E_H
+		//fit_Anti->SetParLimits(11, 0.015, 0.05);// Gamma_H
+		fit_Anti->SetParLimits(9, 0.0, 50.0);   // K_scale
+		fit_Anti->SetParLimits(10, 2.22, 2.30); // E_H (閾値 2.231 GeV付近の探索に限定)
+		fit_Anti->SetParLimits(11, 0.005, 0.05); // Gamma_H (1 MeV ~ 100 MeV の範囲に制限)
+	}else(mode == "Kehao"){
+		Double_t par_Anti[12] = {0.394, 1.64, 0.60, 9.80, 0.32, -0.07, 0.90, 0.992, 0.00247, 31.15, 2.14, 2.13}; 
+
+		//Kehao修正
+		fit_Anti->FixParameter(0, 0.394);      // lambda (固定)
+		fit_Anti->FixParameter(2, 0.60);       // f0 (固定)
+		fit_Anti->FixParameter(3, 9.80);       // d0 (固定)
+		fit_Anti->SetParLimits(1, 1.0, 3.0);   // r0
+		fit_Anti->SetParLimits(4, 0.0, 1.0);   // a_weight
+		fit_Anti->SetParLimits(5, -0.2, 0.2);  // a_res
+		fit_Anti->SetParLimits(6, 0.0, 2.0);   // r_res
+		fit_Anti->SetParLimits(7, 0.9, 1.1);   // p0
+		fit_Anti->SetParLimits(8, 0.0, 0.01);  // p1
+		fit_Anti->SetParLimits(9, 0.0, 50.0);  // K_scale
+
+		fit_Anti->SetParLimits(10, 1.0, 3.0);      // E_H (不変質量 2.234 GeV付近)
+		fit_Anti->SetParLimits(11, 0.0, 4.0);   // Gamma_H (数MeV程度)
+
+	}
 
 	/*
 	// Kehao
@@ -681,21 +711,6 @@ void FitAngle() {
     fit_Anti->SetParLimits(9, 0.0, 50.0);  // K_scale
     fit_Anti->SetParLimits(10, 0.08, 0.12);// E_H
     fit_Anti->SetParLimits(11, 0.015, 0.05);// Gamma_H*/
-/*
-	//Kehao修正
-	fit_Anti->FixParameter(0, 0.394);      // lambda (固定)
-    fit_Anti->FixParameter(2, 0.60);       // f0 (固定)
-    fit_Anti->FixParameter(3, 9.80);       // d0 (固定)
-    fit_Anti->SetParLimits(1, 1.0, 3.0);   // r0
-    fit_Anti->SetParLimits(4, 0.0, 1.0);   // a_weight
-    fit_Anti->SetParLimits(5, -0.2, 0.2);  // a_res
-    fit_Anti->SetParLimits(6, 0.0, 2.0);   // r_res
-    fit_Anti->SetParLimits(7, 0.9, 1.1);   // p0
-    fit_Anti->SetParLimits(8, 0.0, 0.01);  // p1
-    fit_Anti->SetParLimits(9, 0.0, 50.0);  // K_scale
-
-	fit_Anti->SetParLimits(10, 1.0, 3.0);      // E_H (不変質量 2.234 GeV付近)
-    fit_Anti->SetParLimits(11, 0.0, 4.0);   // Gamma_H (数MeV程度)*/
 
     fit_Anti->SetParameters(par_Anti);
     fit_Anti->SetLineColor(kRed);
@@ -743,19 +758,36 @@ void FitAngle() {
     cAll->cd(3);
     TF1 *fit_Para = new TF1("fit_Para", func_noBW, 0.01, 0.6, 9);
     // 初期値設定 (lambda, r0, f0, d0, a_weight, a_res, r_res, p0, p1)
-    fit_Para->SetParameters(0.394, 1.83, 0.60, 9.80, 0.0, -0.01, 0.54, 0.992, 0.00302);
 
-	fit_Para->FixParameter(0, 0.394);
-	fit_Para->FixParameter(2, 0.60);       // f0 (固定)
-    fit_Para->FixParameter(3, 9.80);       // d0 (固定)
-    fit_Para->SetParLimits(1, 1.0, 3.0);
-    //fit_Para->SetParLimits(2, -10.0, 10.0);
-    //fit_Para->SetParLimits(3, 0.0, 20.0);
-    fit_Para->SetParLimits(4, 0.0, 2.0);
-    fit_Para->SetParLimits(5, -0.3, 0.1);
-    fit_Para->SetParLimits(6, 0.0, 2.0);
-    fit_Para->SetParLimits(7, 0.9, 1.1);
-    fit_Para->SetParLimits(8, -0.05, 0.01);
+	if(mode == "me"){
+		fit_Para->SetParameters(0.394, 1.83, 0.60, 9.80, 0.0, -0.01, 0.54, 0.992, 0.00302);
+
+		fit_Para->FixParameter(0, 0.394);
+		fit_Para->FixParameter(2, 0.60);       // f0 (固定)
+		fit_Para->FixParameter(3, 9.80);       // d0 (固定)
+		fit_Para->SetParLimits(1, 1.0, 3.0);
+		//fit_Para->SetParLimits(2, -10.0, 10.0);
+		//fit_Para->SetParLimits(3, 0.0, 20.0);
+		fit_Para->SetParLimits(4, 0.0, 2.0);
+		fit_Para->SetParLimits(5, -0.3, 0.1);
+		fit_Para->SetParLimits(6, 0.0, 2.0);
+		fit_Para->SetParLimits(7, 0.9, 1.1);
+		fit_Para->SetParLimits(8, -0.05, 0.01);
+
+	}else(mode == "Kehao"){
+		fit_Para->SetParameters(0.394, 1.83, 0.60, 9.80, 0.20, -0.032, 0.54, 0.992, 0.00302);
+    
+		fit_Para->FixParameter(0, 0.394);      // lambda (固定)
+		fit_Para->FixParameter(2, 0.60);       // f0 (固定)
+		fit_Para->FixParameter(3, 9.80);       // d0 (固定)
+		fit_Para->SetParLimits(1, 1.0, 3.0);   // r0
+		fit_Para->SetParLimits(4, 0.0, 1.0);   // a_weight
+		fit_Para->SetParLimits(5, -0.2, 0.2);  // a_res
+		fit_Para->SetParLimits(6, 0.0, 2.0);   // r_res
+		fit_Para->SetParLimits(7, 0.9, 1.1);   // p0
+		fit_Para->SetParLimits(8, 0.0, 0.01);  // p1
+
+	}
 /*
 	// Kehao
 	fit_Para->FixParameter(0, 0.18);       // lambda (固定)
@@ -767,18 +799,7 @@ void FitAngle() {
     fit_Para->SetParLimits(6, 0.0, 2.0);   // r_res
     fit_Para->SetParLimits(7, 0.9, 1.1);   // p0
     fit_Para->SetParLimits(8, 0.0, 0.01);  // p1
-
-	fit_Para->SetParameters(0.394, 1.83, 0.60, 9.80, 0.20, -0.032, 0.54, 0.992, 0.00302);
-    
-    fit_Para->FixParameter(0, 0.394);      // lambda (固定)
-    fit_Para->FixParameter(2, 0.60);       // f0 (固定)
-    fit_Para->FixParameter(3, 9.80);       // d0 (固定)
-    fit_Para->SetParLimits(1, 1.0, 3.0);   // r0
-    fit_Para->SetParLimits(4, 0.0, 1.0);   // a_weight
-    fit_Para->SetParLimits(5, -0.2, 0.2);  // a_res
-    fit_Para->SetParLimits(6, 0.0, 2.0);   // r_res
-    fit_Para->SetParLimits(7, 0.9, 1.1);   // p0
-    fit_Para->SetParLimits(8, 0.0, 0.01);  // p1*/
+*/
 
     fit_Para->SetLineColor(kRed);
     hC2_Para->SetTitle("Parallel");
@@ -811,5 +832,5 @@ void FitAngle() {
     hWeight_BW->Write();
     fOutWeight->Close();
 
-    std::cout << "✅ Saved Weight Function to weight_func.root" << std::endl;
+    std::cout << "✅ Saved Weight Function to: " << weightFileName << std::endl;
 }

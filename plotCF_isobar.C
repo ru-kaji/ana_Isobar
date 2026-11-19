@@ -1193,8 +1193,9 @@ void plotCF_isobar(TString fileName) {
         }
 
     
-    TString outFileName = "check_isobar_KehaoMergeTopoTight_cuttracks_R1p4.root";
-    TFile *f_my = new TFile(outFileName, "UPDATE");
+    TString outFileName = fileName;
+    outFileName.ReplaceAll("OutAnaTree_isobar_", "check_");
+    TFile *f_my = new TFile(outFileName, "RECREATE");
 
     for(int ipid = 0; ipid < 4; ipid++) {
     

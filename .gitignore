@@ -2,3 +2,5 @@
 *.pdf
 *.png
 *.lst
+*.out
+*.txt
