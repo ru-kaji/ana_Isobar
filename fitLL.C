@@ -37,7 +37,7 @@ void Minimization();
 void FitPML();
 void FitAngle(TString inFileName = "check_phi5eta4_cuttracks_R1p4.root", TString mode = "me");
 
-void fitLL(TString inFileName = "check_isobar_phi5eta4_cuttracks_R1p4.root", TString mode = "me"){
+void fitLL(TString inFileName = "check_phi5eta4_cuttracks_R1p4.root", TString mode = "me"){
 
 	gStyle->SetOptStat(1111111);
 
@@ -651,11 +651,12 @@ void FitAngle(TString inFileName, TString mode) {
     // ========================================================
     cAll->cd(2);
     TF1 *fit_Anti = new TF1("fit_Anti", func_withBW, 0.01, 0.6, 12);
+	fit_Anti->SetParNames("lambda", "r0", "f0", "d0", "a_weight", "a_res", "r_res", "p0", "p1", "K_scale", "E_H");
+	fit_Anti->SetParName(11, "Gamma_H");
     //Double_t par_Anti[12] = {0.18, 1.64, 0.60, 9.80, 0.32, -0.07, 0.90, 0.992, 0.00247, 31.15, 0.1, 0.02};
 	
 	//Double_t par_Anti[12] = {0.18, 1.64, 0.60, 9.80, 0.32, -0.07, 0.90, 0.992, 0.00247, 31.15, 0.1, 0.02}; //Kehao
 	
-
 
 	if(mode == "me"){
 		Double_t par_Anti[12] = {0.394, 1.64, 0.60, 9.80, 0.25, -0.07, 0.90, 0.992, 0.00247, 1.0, 2.234, 0.02};
@@ -677,24 +678,31 @@ void FitAngle(TString inFileName, TString mode) {
 		fit_Anti->SetParLimits(9, 0.0, 50.0);   // K_scale
 		fit_Anti->SetParLimits(10, 2.22, 2.30); // E_H (閾値 2.231 GeV付近の探索に限定)
 		fit_Anti->SetParLimits(11, 0.005, 0.05); // Gamma_H (1 MeV ~ 100 MeV の範囲に制限)
-	}else(mode == "Kehao"){
-		Double_t par_Anti[12] = {0.394, 1.64, 0.60, 9.80, 0.32, -0.07, 0.90, 0.992, 0.00247, 31.15, 2.14, 2.13}; 
+
+		fit_Anti->SetParameters(par_Anti);
+
+	}else if(mode == "Kehao"){
+		//Double_t par_Anti[12] = {0.394, 1.64, 0.60, 9.80, 0.32, -0.07, 0.90, 0.992, 0.00247, 31.15, 2.231, 0.02}; 
+		Double_t par_Anti[12] = {0.18, 1.64, 0.60, 9.80, 0.4, -0.02, 0.73, 0.992, 0.00247, 1.0, 2.231, 0.01}; //Kehao
 
 		//Kehao修正
-		fit_Anti->FixParameter(0, 0.394);      // lambda (固定)
+		fit_Anti->FixParameter(0, 0.18);      // lambda (固定)
 		fit_Anti->FixParameter(2, 0.60);       // f0 (固定)
 		fit_Anti->FixParameter(3, 9.80);       // d0 (固定)
+		fit_Anti->FixParameter(8, 0.00247);
+		//fit_Anti->FixParameter(9, 0.0);
 		fit_Anti->SetParLimits(1, 1.0, 3.0);   // r0
-		fit_Anti->SetParLimits(4, 0.0, 1.0);   // a_weight
-		fit_Anti->SetParLimits(5, -0.2, 0.2);  // a_res
+		fit_Anti->SetParLimits(4, 0.25, 0.45);   // a_weight
+		fit_Anti->SetParLimits(5, -0.02, 0.02);  // a_res
 		fit_Anti->SetParLimits(6, 0.0, 2.0);   // r_res
 		fit_Anti->SetParLimits(7, 0.9, 1.1);   // p0
-		fit_Anti->SetParLimits(8, 0.0, 0.01);  // p1
+		//fit_Anti->SetParLimits(8, 0.0, 0.05);  // p1
 		fit_Anti->SetParLimits(9, 0.0, 50.0);  // K_scale
 
-		fit_Anti->SetParLimits(10, 1.0, 3.0);      // E_H (不変質量 2.234 GeV付近)
-		fit_Anti->SetParLimits(11, 0.0, 4.0);   // Gamma_H (数MeV程度)
+		fit_Anti->SetParLimits(10, 2.233, 2.25);    // E_H (不変質量 2.234 GeV付近)
+		fit_Anti->SetParLimits(11, 0.005, 0.05);   // Gamma_H (数MeV程度)
 
+		fit_Anti->SetParameters(par_Anti);
 	}
 
 	/*
@@ -712,12 +720,11 @@ void FitAngle(TString inFileName, TString mode) {
     fit_Anti->SetParLimits(10, 0.08, 0.12);// E_H
     fit_Anti->SetParLimits(11, 0.015, 0.05);// Gamma_H*/
 
-    fit_Anti->SetParameters(par_Anti);
     fit_Anti->SetLineColor(kRed);
     hC2_Anti->SetTitle("Anti-Parallel");
     hC2_Anti->GetXaxis()->SetRangeUser(0.0, 0.6);
     hC2_Anti->Draw("P");
-    hC2_Anti->Fit(fit_Anti, "R");
+    TFitResultPtr res_Anti = hC2_Anti->Fit(fit_Anti, "RS");
 
     // ☆ 重み関数の重ね書き (シグナル項なし)
     TF1 *weight_Anti = new TF1("weight_Anti", func_noBW, 0.01, 0.6, 9);
@@ -757,6 +764,7 @@ void FitAngle(TString inFileName, TString mode) {
     // ========================================================
     cAll->cd(3);
     TF1 *fit_Para = new TF1("fit_Para", func_noBW, 0.01, 0.6, 9);
+	fit_Para->SetParNames("lambda", "r0", "f0", "d0", "a_weight", "a_res", "r_res", "p0", "p1");
     // 初期値設定 (lambda, r0, f0, d0, a_weight, a_res, r_res, p0, p1)
 
 	if(mode == "me"){
@@ -774,7 +782,7 @@ void FitAngle(TString inFileName, TString mode) {
 		fit_Para->SetParLimits(7, 0.9, 1.1);
 		fit_Para->SetParLimits(8, -0.05, 0.01);
 
-	}else(mode == "Kehao"){
+	}else if(mode == "Kehao"){
 		fit_Para->SetParameters(0.394, 1.83, 0.60, 9.80, 0.20, -0.032, 0.54, 0.992, 0.00302);
     
 		fit_Para->FixParameter(0, 0.394);      // lambda (固定)
@@ -805,7 +813,7 @@ void FitAngle(TString inFileName, TString mode) {
     hC2_Para->SetTitle("Parallel");
     hC2_Para->GetXaxis()->SetRangeUser(0.0, 0.6);
     hC2_Para->Draw("P");
-    hC2_Para->Fit(fit_Para, "R");
+    TFitResultPtr res_Para = hC2_Para->Fit(fit_Para, "RS");
 
 	TLegend *leg3 = new TLegend(0.45, 0.2, 0.85, 0.4);
     leg3->SetBorderSize(0);
@@ -814,7 +822,15 @@ void FitAngle(TString inFileName, TString mode) {
     leg3->AddEntry(fit_Para, "LL+Baseline", "l");
     leg3->Draw();
 
-	TFile *fOutWeight = new TFile("weight_phi5eta4_cuttracks.root", "RECREATE");
+	cAll->Modified();
+    cAll->Update();
+
+	TString pdfFileName = inFileName;
+    pdfFileName.ReplaceAll("check_", "fit_");
+    pdfFileName.ReplaceAll(".root", ".pdf");
+    cAll->SaveAs(pdfFileName);
+
+	TFile *fOutWeight = new TFile(weightFileName, "RECREATE");
     // 0.0 ~ 2.0 GeV/c を 2000分割（十分に細かい精度）
     TH1D *hWeight = new TH1D("hWeight", "Weight Function for Mix", 2000, 0.0, 2.0);
     for(int i = 1; i <= 2000; i++){
@@ -830,7 +846,13 @@ void FitAngle(TString inFileName, TString mode) {
         hWeight_BW->SetBinContent(i, fit_Anti->Eval(q));
     }
     hWeight_BW->Write();
+
+	fit_Anti->Write("fit_Anti");
+    fit_Para->Write("fit_Para");
+    if (res_Anti.Get()) res_Anti->Write("res_Anti");
+    if (res_Para.Get()) res_Para->Write("res_Para");
+
     fOutWeight->Close();
 
-    std::cout << "✅ Saved Weight Function to: " << weightFileName << std::endl;
+	std::cout << "✅ Saved Weight Function to: " << weightFileName << std::endl;
 }

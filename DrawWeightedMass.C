@@ -41,7 +41,6 @@ TH1D* ScaleHist(TH1D* hSame, TH1D* hMix, double xmin, double xmax, const char* n
     return hScaled;
 }
 
-// 3. メイン関数（引数は OutAnaTree_isobar_◯◯.root の1つだけ！）
 void DrawWeightedMass(TString fileName = "OutAnaTree_isobar_phi5eta4_cuttracks_R1p4.root") {
     gStyle->SetOptStat(0);
     gStyle->SetPadBottomMargin(0.14);
@@ -72,8 +71,8 @@ void DrawWeightedMass(TString fileName = "OutAnaTree_isobar_phi5eta4_cuttracks_R
     TH1D *hSame_AA = (TH1D*)fin->Get("hmass_same_0_AA_SS_90-180");
     TH1D *hMix_LL  = (TH1D*)fin->Get("hmass_mix_0_LL_SS_90-180");
     TH1D *hMix_AA  = (TH1D*)fin->Get("hmass_mix_0_AA_SS_90-180");
-    TH2D *h2_LL    = (TH2D*)fin->Get("h2_q_m_mix_LL");
-    TH2D *h2_AA    = (TH2D*)fin->Get("h2_q_m_mix_AA");
+    TH2D *h2_LL    = (TH2D*)fin->Get("h2_q_m_mix_LL_Anti");
+    TH2D *h2_AA    = (TH2D*)fin->Get("h2_q_m_mix_AA_Anti");
 
     if (!hSame_LL || !hSame_AA || !hMix_LL || !hMix_AA || !h2_LL || !h2_AA) {
         std::cerr << "❌ Error: Missing required histograms in " << fileName << std::endl;
@@ -105,19 +104,18 @@ void DrawWeightedMass(TString fileName = "OutAnaTree_isobar_phi5eta4_cuttracks_R
     hDiff_NoW->Add(hMixNoW_scaled, -1.0);
 
     // ⑦ 描画
-    TCanvas *c1 = new TCanvas("c_weigh_diff", "Same - Mix (LL+AA)", 700, 600);
+    TCanvas *c1_w = new TCanvas("c_weigh_diff", "Same - Mix (LL+AA)", 400, 300);
     
-    hDiff_W->SetTitle("#Lambda#Lambda + #bar{#Lambda}#bar{#Lambda} (SS, Anti-Parallel);M_{inv} (GeV/c^{2});Same - Mix Counts");
+    hDiff_W->SetTitle("#Lambda#Lambda + #bar{#Lambda}#bar{#Lambda} (Anti-Parallel);M_{inv} (GeV/c^{2});Counts");
     hDiff_W->SetMarkerStyle(20);
-    hDiff_W->SetMarkerSize(0.9);
+    hDiff_W->SetMarkerSize(0.8);
     hDiff_W->SetMarkerColor(kRed);
     hDiff_W->SetLineColor(kRed);
     hDiff_W->GetYaxis()->SetRangeUser(-800, 800);
-    SetAxis(hDiff_W);
     hDiff_W->Draw("PE");
 
     hDiff_NoW->SetMarkerStyle(24);
-    hDiff_NoW->SetMarkerSize(0.9);
+    hDiff_NoW->SetMarkerSize(0.8);
     hDiff_NoW->SetMarkerColor(kBlue);
     hDiff_NoW->SetLineColor(kBlue);
     hDiff_NoW->Draw("PE same");
@@ -128,12 +126,19 @@ void DrawWeightedMass(TString fileName = "OutAnaTree_isobar_phi5eta4_cuttracks_R
     line->SetLineWidth(2);
     line->Draw("same");
 
-    TLegend *leg = new TLegend(0.45, 0.72, 0.88, 0.88);
+    TLegend *leg = new TLegend(0.5, 0.2, 0.9, 0.3);
     leg->SetBorderSize(0);
     leg->SetFillStyle(0);
-    leg->SetTextFont(43);
-    leg->SetTextSize(18);
-    leg->AddEntry(hDiff_W,   "Same - Mix_{weight (no BW)}", "pe");
+
+    leg->AddEntry(hDiff_W,   "Same - Mix_{weight}", "pe");
     leg->AddEntry(hDiff_NoW, "Same - Mix_{no weight}", "pe");
     leg->Draw();
+
+    c1_w->Modified();
+    c1_w->Update();
+
+    TString pdfFileName = weightFile;
+    pdfFileName.ReplaceAll("Weight_", "MassDiff_");
+    pdfFileName.ReplaceAll(".root", ".pdf");
+    c1_w->SaveAs(pdfFileName);
 }

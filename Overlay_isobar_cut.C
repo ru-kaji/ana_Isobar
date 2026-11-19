@@ -13,26 +13,26 @@
 
 void Overlay_isobar_cut(){
 
-    TFile *f_ref_Para = new TFile("../ana_KFParticle/angel0_90.root", "READ");
-    TFile *f_ref_Anti = new TFile("../ana_KFParticle/angel90_180.root", "READ");
-    TFile *f_ref_Para_smallbin = new TFile("../ana_KFParticle/smallerbin0_90.root", "READ");
-    TFile *f_ref_Anti_smallbin = new TFile("../ana_KFParticle/smallerbin90_180.root", "READ");
+   // TFile *f_ref_Para = new TFile("../ana_KFParticle/angel0_90.root", "READ");
+    //TFile *f_ref_Anti = new TFile("../ana_KFParticle/angel90_180.root", "READ");
+    TFile *f_ref_Para_smallbin = new TFile("smallerbin0_90.root", "READ");
+    TFile *f_ref_Anti_smallbin = new TFile("smallerbin90_180.root", "READ");
 
-    TH1D *h_ref[2]; // 0: Para, 1: Anti (Qinv* スケール, Max 5000)
+    //TH1D *h_ref[2]; // 0: Para, 1: Anti (Qinv* スケール, Max 5000)
     TH1D *h_ref_smallbin[2];
 
-    h_ref[0] = (TH1D*)f_ref_Para->Get("hCF_cut2_s_cent0");
-    h_ref[1] = (TH1D*)f_ref_Anti->Get("hCF_cut2_s_cent0");
+   // h_ref[0] = (TH1D*)f_ref_Para->Get("hCF_cut2_s_cent0");
+   // h_ref[1] = (TH1D*)f_ref_Anti->Get("hCF_cut2_s_cent0");
     h_ref_smallbin[0] = (TH1D*)f_ref_Para_smallbin->Get("hCF_cut2_s_cent0");
     h_ref_smallbin[1] = (TH1D*)f_ref_Anti_smallbin->Get("hCF_cut2_s_cent0");
 
-    if (!f_ref_Para || f_ref_Para->IsZombie() || !f_ref_Anti || f_ref_Anti_smallbin->IsZombie()) {
+    if (!f_ref_Para_smallbin || !f_ref_Anti_smallbin) {
         std::cout << "!!! Error: Cannot open one or more input Kehao files !!!" << std::endl;
         return;
     }
 
     for (int j = 0; j < 2; j++) {
-        if (!h_ref[j] || !h_ref_smallbin[j] ) {
+        if ( !h_ref_smallbin[j] ) {
             std::cout << "!!! Error: Kehao Histogram not found for index " << j << " !!!" << std::endl;
             continue;
         }
@@ -54,7 +54,7 @@ void Overlay_isobar_cut(){
     }
 
     // -------------------- f1 ------------------------- 
-    TFile *f1    = new TFile("check_isobar_KehaoMergeTopoLoose_cuttracks_R1p4.root", "READ"); // Δη<0.02, Δφ*<0.02
+    TFile *f1    = new TFile("check_phi5eta4_nocuttracks_R1p4.root", "READ"); // Δη<0.02, Δφ*<0.02
     if (!f1) {
         std::cout << "!!! Error: Cannot open one f1 !!!" << std::endl;
         return;
@@ -65,7 +65,7 @@ void Overlay_isobar_cut(){
     h1[1]  = (TH1D*)f1->Get("hCF_Anti_LL+AA");
 
     // -------------------- f2 ------------------------- 
-    TFile *f2   = new TFile("check_isobar_KehaoMergeTopocut_cuttracks_R1p4.root", "READ"); // Δη<0.04, Δφ*<0.04
+    TFile *f2   = new TFile("check_phi5eta4_cutpairs_R1p4.root", "READ"); // Δη<0.04, Δφ*<0.04
     if (!f2) {
         std::cout << "!!! Error: Cannot open one f2 !!!" << std::endl;
         return;
@@ -76,7 +76,7 @@ void Overlay_isobar_cut(){
     h2[1]  = (TH1D*)f2->Get("hCF_Anti_LL+AA");
 
     // -------------------- f3 ------------------------- 
-    TFile *f3   = new TFile("check_isobar_KehaoMergeTopoTight_cuttracks_R1p4.root", "READ"); // Δη<0.06, Δφ*<0.06
+    TFile *f3   = new TFile("check_phi5eta4_cuttracks_R1p4.root", "READ"); // Δη<0.06, Δφ*<0.06
     if (!f3) {
         std::cout << "!!! Error: Cannot open one f3 !!!" << std::endl;
         return;
@@ -112,7 +112,7 @@ void Overlay_isobar_cut(){
     TH1D *h0;
 
     for(int i=0; i<2; i++){
-        TCanvas *c1_ol = new TCanvas(Form("c1_ol[%d]", i), "(0.0, 2.0)GeV/c", 1600, 500);
+        TCanvas *c1_ol = new TCanvas(Form("c1_ol[%d]", i), "(0.0, 2.0)GeV/c", 1000, 350);
         c1_ol->Divide(2, 1);
 
         for (int j = 0; j < 2; j++) {
@@ -120,24 +120,24 @@ void Overlay_isobar_cut(){
 
             TH1D *h_ref = (TH1D*)h_ref_smallbin[j]->Clone(Form("h_ref_clone_%d_%d", i, j));
 
-            if(h_ref) h0 = h_ref;
-            //h0 = h2[j];
+            //if(h_ref) h0 = h_ref;
+            h0 = (TH1D*)h1[j]->Clone(Form("h1_clone_%d_%d", i, j));
             h0->SetTitle(Form("%s; Q^{inv} (GeV/c); C(Q_{inv})", titles[j]));
             h0->GetXaxis()->SetRangeUser(0.0, x_max[i]); 
             h0->SetMaximum(1.1);
             h0->SetMinimum(y_min[j]);
             h0->Draw("PE");
 
-            if(h1[j]) h1[j]->Draw("PE SAME");
+            //if(h1[j]) h1[j]->Draw("PE SAME");
             if(h2[j]) h2[j]->Draw("PE SAME");
             if(h3[j]) h3[j]->Draw("PE SAME");
 
             TLegend *leg = new TLegend(0.4, 0.15, 0.9, 0.35);
             leg->SetBorderSize(0);
-            leg->AddEntry(h_ref, "Kehao", "pe");
-            if(h1[j]) leg->AddEntry(h1[j], "Loose", "pe");
-            if(h2[j]) leg->AddEntry(h2[j], "Default", "pe");
-            if(h3[j]) leg->AddEntry(h3[j], "Tight", "pe");
+            //leg->AddEntry(h_ref, "Kehao", "pe");
+            if(h1[j]) leg->AddEntry(h1[j], "no cut", "pe");
+            if(h2[j]) leg->AddEntry(h2[j], "cut pairs", "pe");
+            if(h3[j]) leg->AddEntry(h3[j], "cut tracks", "pe");
             leg->Draw("same");
 
             TLine *line = new TLine(0.0, 1.0, x_max[i], 1.0);
@@ -146,7 +146,9 @@ void Overlay_isobar_cut(){
             line->SetLineWidth(2);
             line->Draw("same");
         }
+
+        if(i==1)  c1_ol->SaveAs("compared_phi5eta4_tracks.pdf");
     }
-    //c1_ol->SaveAs("check_Kehao_70per_cut2.pdf");
+   
 }
 
