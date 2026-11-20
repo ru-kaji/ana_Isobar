@@ -721,7 +721,7 @@ void FitAngle(TString inFileName, TString mode) {
     fit_Anti->SetParLimits(11, 0.015, 0.05);// Gamma_H*/
 
     fit_Anti->SetLineColor(kRed);
-    hC2_Anti->SetTitle("Anti-Parallel");
+    hC2_Anti->SetTitle("Anti-Parallel; Q_{inv}(GeV/c); C(Q_{inv})");
     hC2_Anti->GetXaxis()->SetRangeUser(0.0, 0.6);
     hC2_Anti->Draw("P");
     TFitResultPtr res_Anti = hC2_Anti->Fit(fit_Anti, "RS");
@@ -810,7 +810,7 @@ void FitAngle(TString inFileName, TString mode) {
 */
 
     fit_Para->SetLineColor(kRed);
-    hC2_Para->SetTitle("Parallel");
+    hC2_Para->SetTitle("Parallel Q_{inv}(GeV/c); C(Q_{inv})");
     hC2_Para->GetXaxis()->SetRangeUser(0.0, 0.6);
     hC2_Para->Draw("P");
     TFitResultPtr res_Para = hC2_Para->Fit(fit_Para, "RS");

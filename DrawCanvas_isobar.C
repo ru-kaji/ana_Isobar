@@ -521,8 +521,8 @@ void DrawCanvas_isobar(TString fileName){
 		TLegend *leg = new TLegend(0.5, 0.2, 0.9, 0.3);
 		leg->SetBorderSize(0);
 		leg->SetFillStyle(0);
-		leg->AddEntry(hDiff, "Same - Mix_{weight}", "l");
-		leg->AddEntry(hDiff_noweigh, "Same - Mix_{no weight}", "l");
+		leg->AddEntry(hDiff, "Same - Mix_{weight}", "pe");
+		leg->AddEntry(hDiff_noweigh, "Same - Mix_{no weight}", "pe");
 		leg->Draw();
 
 		c_weigh->cd(ipid*3+3);

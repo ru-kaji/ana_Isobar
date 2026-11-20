@@ -37,18 +37,26 @@ void calcPurity_isobar(TString filename, TString particle = "L") {
     TString xAxisLabel;
     TString outPdf;
     TString particleNameLatex;
+    TString outTxt;
+
+    TString baseName = gSystem->BaseName(filename);
+    TString tag = baseName;
+    tag.ReplaceAll("OutAnaTree_isobar_", "");
+    tag.ReplaceAll(".root", "");
 
     if (particle == "L") {
         pidStr            = "L";
         plotTitle         = "#Lambda Mass";
         xAxisLabel        = "M_{p#pi^{-}} (GeV/c^{2})";
-        outPdf            = "Purity_isobar_L.pdf";
+        outPdf            = Form("Purity_isobar_L_%s.pdf", tag.Data());
+        outTxt            = Form("Purity_isobar_L_%s.txt", tag.Data());
         particleNameLatex = "#Lambda Mass";
     } else if (particle == "A") {
         pidStr             = "A"; 
         plotTitle         = "#bar{#Lambda} Mass"; // #bar{...} で上線が付きます
         xAxisLabel        = "M_{#bar{p}#pi^{+}} (GeV/c^{2})";   // 崩壊娘粒子は反陽子とπ+になります
-        outPdf            = "Purity_isobar_A.pdf";
+        outPdf            = Form("Purity_isobar_A_%s.pdf", tag.Data());
+        outTxt            = Form("Purity_isobar_A_%s.txt", tag.Data());
         particleNameLatex = "#bar{#Lambda} Mass";
     } else {
         std::cerr << "Error: Unknown particle type!" << std::endl;
@@ -64,8 +72,8 @@ void calcPurity_isobar(TString filename, TString particle = "L") {
 
     // 2. Define the fit ranges and signal region
     double pdgMass = 1.115683; // Lambda PDG mass (GeV/c^2)
-    double fitMin = 1.09;
-    double fitMax = 1.13;
+    double fitMin = 1.095;
+    double fitMax = 1.135;
     
     // 3. Set up the Fit Function: Double Gaussian + Pol2 Background
     // p0: Constant of Gaussian 1 (Core)
@@ -106,6 +114,17 @@ void calcPurity_isobar(TString filename, TString particle = "L") {
     TH1F* hTarget[3] = {hMass_0to80, hMass_10to80, hMass_20to80};
     TString targetName[3] = {"0-80%", "10-80%", "20-80%"};
 
+    std::ofstream ofs(outTxt.Data());
+    if (ofs.is_open()) {
+        ofs << "Input File : " << filename.Data() << "\n";
+        ofs << "Output PDF : " << outPdf.Data() << "\n";
+        ofs << "Particle   : " << pidStr.Data() << "\n";
+        ofs << "Fit Range  : [" << fitMin << ", " << fitMax << "]\n";
+        ofs << "========================================\n\n";
+    } else {
+        std::cerr << "Warning: Cannot open " << outTxt << " for writing." << std::endl;
+    }
+
     for(int i = 0; i < 3; i++){
         TH1F *hFit = (TH1F*)hTarget[i]->Clone(Form("hFit_Purity_%s", targetName[i].Data()));
         hFit->SetDirectory(0); // detach from file
@@ -124,13 +143,6 @@ void calcPurity_isobar(TString filename, TString particle = "L") {
         // my cut
         /*fTotal->SetParameter(0, sigHeight*0.9);       // Core height ME
         fTotal->SetParLimits(0, sigHeight*0.85, sigHeight);
-        */
-        //Kehao
-        fTotal->SetParameter(0, sigHeight*0.95);       // Core height Kehao
-        fTotal->SetParLimits(0, sigHeight*0.85, sigHeight);
-
-        fTotal->SetParameter(0, sigHeight*0.9);       // Core height ME
-        fTotal->SetParLimits(0, sigHeight*0.85, sigHeight);
         fTotal->SetParameter(1, 1.115683);         // Mean
         fTotal->SetParLimits(1, pdgMass - 0.01, pdgMass + 0.01);
         
@@ -145,13 +157,40 @@ void calcPurity_isobar(TString filename, TString particle = "L") {
         fTotal->SetParLimits(3, sigHeight*0.1, sigHeight*0.3);             // Tail height
         fTotal->SetParameter(4, 0.002);    
         fTotal->SetParLimits(4, 0.0025, 0.02);
+
+         // Initial guess for background
+        fTotal->SetParameter(5,  2.5e7); 
+        //fTotal->SetParLimits(5, bgHeight*0.8, bgHeight*1.1);
+        //fTotal->ReleaseParameter(5);
+        fTotal->SetParameter(6, -1.7e3);
+        fTotal->SetParLimits(6, -1e+7, 1.0);
+        //fTotal->ReleaseParameter(6);
+        */
+        //Kehao
+        fTotal->SetParameter(0, sigHeight*0.95);       // Core height Kehao
+        fTotal->SetParLimits(0, sigHeight*0.85, sigHeight*1.2);
+
+        fTotal->SetParameter(1, 1.115683);         // Mean
+        fTotal->SetParLimits(1, pdgMass - 0.01, pdgMass + 0.01);
+        
+        fTotal->SetParameter(2, 0.0007);          // Core sigma (narrow)
+        fTotal->SetParLimits(2, 0.0003, 0.002);
+        
+        // Disable Tail Gaussian by fixing its amplitude (p3) to 0
+        // To enable later, change FixParameter to SetParameter/SetParLimits
+        fTotal->ReleaseParameter(3);
+        fTotal->ReleaseParameter(4);
+        fTotal->SetParameter(3, sigHeight*0.2); 
+        fTotal->SetParLimits(3, sigHeight*0.1, sigHeight*0.3);             // Tail height
+        fTotal->SetParameter(4, 0.002);    
+        fTotal->SetParLimits(4, 0.001, 0.02);
         
         // Initial guess for background
         fTotal->SetParameter(5,  2.5e7); 
         //fTotal->SetParLimits(5, bgHeight*0.8, bgHeight*1.1);
         //fTotal->ReleaseParameter(5);
         fTotal->SetParameter(6, -1.7e3);
-        fTotal->SetParLimits(6, -1e+7, 1.0);
+        fTotal->SetParLimits(6, -1e+7, 1e+7);
         //fTotal->ReleaseParameter(6);
 
         // 各パラメータの取得
@@ -168,13 +207,14 @@ void calcPurity_isobar(TString filename, TString particle = "L") {
         // 面積で重み付けした分散から、Effective Sigma を計算
         double sgm_eff = std::sqrt((area_core * std::pow(p2_sig1, 2) + area_tail * std::pow(p4_sig2, 2)) / area_total);
 
+        gPad->SetLogy();
         // 4. Perform the Fit
         c_purity->cd(i+1);
         hFit->SetStats(0);
         hFit->SetMarkerStyle(20);
         hFit->SetMarkerSize(0.7);
         hFit->SetLineColor(kBlack);
-        hFit->GetXaxis()->SetRangeUser(1.105, 1.13);
+        hFit->GetXaxis()->SetRangeUser(1.09, 1.15);
         hFit->SetTitle(Form("%s %s", plotTitle.Data(), targetName[i].Data()));
         hFit->GetXaxis()->SetTitle(xAxisLabel);
         hFit->GetXaxis()->SetTitleSize(0.04);
@@ -183,7 +223,7 @@ void calcPurity_isobar(TString filename, TString particle = "L") {
         hFit->GetYaxis()->SetTitleSize(0.05);
         hFit->Draw("PE");
 
-        hFit->Fit(fTotal, "R");
+        hFit->Fit(fTotal, "RQ");
         TFitResultPtr r = hFit->Fit(fTotal, "SR");
 
         // 5. Extract Signal and Background functions
@@ -246,7 +286,7 @@ void calcPurity_isobar(TString filename, TString particle = "L") {
         lMin->Draw("same"); lMax->Draw("same");
         
         // Add Legend
-        TLegend *leg = new TLegend(0.6, 0.15, 0.9, 0.45);
+        TLegend *leg = new TLegend(0.6, 0.35, 0.9, 0.5);
         leg->SetBorderSize(0);
         leg->SetFillStyle(0);
         leg->SetTextSize(0.03);
@@ -261,16 +301,37 @@ void calcPurity_isobar(TString filename, TString particle = "L") {
         tex.SetNDC();
         tex.SetTextSize(0.03); // テキストサイズを少し調整
         //tex.DrawLatex(0.58, 0.87, particleNameLatex);
-        tex.DrawLatex(0.55, 0.83, Form("Signal Window: [%.4f, %.4f]", sigMin, sigMax));
+        tex.DrawLatex(0.5, 0.83, Form("Signal Window: [%.4f, %.4f]", sigMin, sigMax));
         //tex.DrawLatex(0.58, 0.79, Form("S (Fit) = %.0f", S));
         //tex.DrawLatex(0.58, 0.75, Form("B (Fit) = %.0f", B));
         //tex.DrawLatex(0.58, 0.71, Form("S+B (Data) = %.0f", S_plus_B_data));
-        tex.DrawLatex(0.55, 0.78, Form("Purity (S_{fit}/S+B_{fit}) = %.4f", purity_fit));
-        tex.DrawLatex(0.55, 0.73, Form("Purity (S_{fit}/S+B_{data}) = %.4f", purity_data));
-        tex.DrawLatex(0.55, 0.68, Form("#chi^{2}/ndf = %.1f / %d = %.2f", chi2, (int)ndf, chi2ndf)); // chi2表示を追加
+        tex.DrawLatex(0.5, 0.78, Form("Purity (S_{fit}/S+B_{fit}) = %.4f", purity_fit));
+        tex.DrawLatex(0.5, 0.73, Form("Purity (S_{fit}/S+B_{data}) = %.4f", purity_data));
+        tex.DrawLatex(0.5, 0.68, Form("#chi^{2}/ndf = %.1f / %d = %.2f", chi2, (int)ndf, chi2ndf)); // chi2表示を追加
         
+        if (ofs.is_open()) {
+            ofs << "[" << targetName[i].Data() << "]\n";
+            ofs << Form("Signal Window : [%.4f, %.4f]\n", sigMin, sigMax);
+            ofs << Form("Purity (fit)  : %.4f\n", purity_fit);
+            ofs << Form("Purity (data) : %.4f\n", purity_data);
+            ofs << Form("Chi2 / NDF    : %.1f / %d = %.2f\n", chi2, (int)ndf, chi2ndf);
+            ofs << "Fit Parameters:\n";
+            for (int ipar = 0; ipar < fTotal->GetNpar(); ipar++) {
+                ofs << Form("  p%d = %12.6g  +/-  %10.4g\n",
+                            ipar, fTotal->GetParameter(ipar), fTotal->GetParError(ipar));
+            }
+            ofs << "----------------------------------------\n\n";
+        }
+
     } //end of i roop
     
+    c_purity->Update();
     c_purity->SaveAs(outPdf);
+
+    if (ofs.is_open()) {
+        ofs.close();
+        std::cout << "Saved memo to: " << outTxt << std::endl;
+    }
+
     file->Close();
 }

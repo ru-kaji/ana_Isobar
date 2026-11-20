@@ -47,14 +47,14 @@ void Overlay_isobar_cut(){
     }
 
     for (int j = 0; j < 2; j++) {
-        h_ref_smallbin[j]->SetMarkerStyle(24);
+        h_ref_smallbin[j]->SetMarkerStyle(20);
         h_ref_smallbin[j]->SetMarkerSize(0.8);
         h_ref_smallbin[j]->SetMarkerColor(kMagenta);
         h_ref_smallbin[j]->SetLineColor(kMagenta);
     }
 
     // -------------------- f1 ------------------------- 
-    TFile *f1    = new TFile("check_phi5eta4_nocuttracks_R1p4.root", "READ"); // Δη<0.02, Δφ*<0.02
+    TFile *f1    = new TFile("check_KehaoMergeTopocut_nocuttracks_R1p4.root", "READ"); // Δη<0.02, Δφ*<0.02
     if (!f1) {
         std::cout << "!!! Error: Cannot open one f1 !!!" << std::endl;
         return;
@@ -65,7 +65,7 @@ void Overlay_isobar_cut(){
     h1[1]  = (TH1D*)f1->Get("hCF_Anti_LL+AA");
 
     // -------------------- f2 ------------------------- 
-    TFile *f2   = new TFile("check_phi5eta4_cutpairs_R1p4.root", "READ"); // Δη<0.04, Δφ*<0.04
+    TFile *f2   = new TFile("check_KehaoMergeTopocut_cutpairs_R1p4.root", "READ"); // Δη<0.04, Δφ*<0.04
     if (!f2) {
         std::cout << "!!! Error: Cannot open one f2 !!!" << std::endl;
         return;
@@ -76,7 +76,7 @@ void Overlay_isobar_cut(){
     h2[1]  = (TH1D*)f2->Get("hCF_Anti_LL+AA");
 
     // -------------------- f3 ------------------------- 
-    TFile *f3   = new TFile("check_phi5eta4_cuttracks_R1p4.root", "READ"); // Δη<0.06, Δφ*<0.06
+    TFile *f3   = new TFile("check_KehaoMergeTopocut_cuttracks_R1p4.root", "READ"); // Δη<0.06, Δφ*<0.06
     if (!f3) {
         std::cout << "!!! Error: Cannot open one f3 !!!" << std::endl;
         return;
@@ -89,17 +89,17 @@ void Overlay_isobar_cut(){
 
     for (int j = 0; j < 2; j++) {
 
-        h1[j]->SetMarkerStyle(20);
+        h1[j]->SetMarkerStyle(24);
         h1[j]->SetMarkerSize(0.7);
         h1[j]->SetMarkerColor(kRed);
         h1[j]->SetLineColor(kRed);
 
-        h2[j]->SetMarkerStyle(20);
+        h2[j]->SetMarkerStyle(24);
         h2[j]->SetMarkerSize(0.7);
         h2[j]->SetMarkerColor(kGreen+2);
         h2[j]->SetLineColor(kGreen+2);
 
-        h3[j]->SetMarkerStyle(20);
+        h3[j]->SetMarkerStyle(24);
         h3[j]->SetMarkerSize(0.7);
         h3[j]->SetMarkerColor(kBlue);
         h3[j]->SetLineColor(kBlue);
@@ -120,21 +120,21 @@ void Overlay_isobar_cut(){
 
             TH1D *h_ref = (TH1D*)h_ref_smallbin[j]->Clone(Form("h_ref_clone_%d_%d", i, j));
 
-            //if(h_ref) h0 = h_ref;
-            h0 = (TH1D*)h1[j]->Clone(Form("h1_clone_%d_%d", i, j));
+            if(h_ref) h0 = h_ref;
+            //h0 = (TH1D*)h1[j]->Clone(Form("h1_clone_%d_%d", i, j));
             h0->SetTitle(Form("%s; Q^{inv} (GeV/c); C(Q_{inv})", titles[j]));
             h0->GetXaxis()->SetRangeUser(0.0, x_max[i]); 
             h0->SetMaximum(1.1);
             h0->SetMinimum(y_min[j]);
             h0->Draw("PE");
 
-            //if(h1[j]) h1[j]->Draw("PE SAME");
+            if(h1[j]) h1[j]->Draw("PE SAME");
             if(h2[j]) h2[j]->Draw("PE SAME");
             if(h3[j]) h3[j]->Draw("PE SAME");
 
             TLegend *leg = new TLegend(0.4, 0.15, 0.9, 0.35);
             leg->SetBorderSize(0);
-            //leg->AddEntry(h_ref, "Kehao", "pe");
+            leg->AddEntry(h_ref, "Kehao", "pe");
             if(h1[j]) leg->AddEntry(h1[j], "no cut", "pe");
             if(h2[j]) leg->AddEntry(h2[j], "cut pairs", "pe");
             if(h3[j]) leg->AddEntry(h3[j], "cut tracks", "pe");
@@ -147,7 +147,7 @@ void Overlay_isobar_cut(){
             line->Draw("same");
         }
 
-        if(i==1)  c1_ol->SaveAs("compared_phi5eta4_tracks.pdf");
+        //if(i==1)  c1_ol->SaveAs("compared_KehaoMergeTopo_tracks.pdf");
     }
    
 }
