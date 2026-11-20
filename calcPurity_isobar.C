@@ -121,7 +121,15 @@ void calcPurity_isobar(TString filename, TString particle = "L") {
         double maxCounts = hFit->GetMaximum();
         double sigHeight = maxCounts - bgHeight;
         
-        fTotal->SetParameter(0, sigHeight*0.9);       // Core height
+        // my cut
+        /*fTotal->SetParameter(0, sigHeight*0.9);       // Core height ME
+        fTotal->SetParLimits(0, sigHeight*0.85, sigHeight);
+        */
+        //Kehao
+        fTotal->SetParameter(0, sigHeight*0.95);       // Core height Kehao
+        fTotal->SetParLimits(0, sigHeight*0.85, sigHeight);
+
+        fTotal->SetParameter(0, sigHeight*0.9);       // Core height ME
         fTotal->SetParLimits(0, sigHeight*0.85, sigHeight);
         fTotal->SetParameter(1, 1.115683);         // Mean
         fTotal->SetParLimits(1, pdgMass - 0.01, pdgMass + 0.01);
@@ -166,7 +174,7 @@ void calcPurity_isobar(TString filename, TString particle = "L") {
         hFit->SetMarkerStyle(20);
         hFit->SetMarkerSize(0.7);
         hFit->SetLineColor(kBlack);
-        hFit->GetXaxis()->SetRangeUser(1.08, 1.16);
+        hFit->GetXaxis()->SetRangeUser(1.105, 1.13);
         hFit->SetTitle(Form("%s %s", plotTitle.Data(), targetName[i].Data()));
         hFit->GetXaxis()->SetTitle(xAxisLabel);
         hFit->GetXaxis()->SetTitleSize(0.04);
