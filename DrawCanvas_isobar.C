@@ -41,6 +41,18 @@ TH1* DivideHist(TH1* h_Same, TH1* h_Mix_scaled){
 	return h_ratio;
 }
 
+TH1D* MergeHist(TH1D* hLL, TH1D* hAA) {
+    if (!hLL || !hAA ) return nullptr;
+
+    TH1D *hMerged = (TH1D*)hLL->Clone(hLL->GetName() + TString("_Merged"));
+    hMerged->SetDirectory(nullptr);
+    if (!hMerged->GetSumw2N()) hMerged->Sumw2();
+
+    hMerged->Add(hAA, 1.0);
+
+    return hMerged;
+}
+
 double min_Angle = -180.0;
 double max_Angle = 180.0;
 double min_cosAngle = -1.0;
