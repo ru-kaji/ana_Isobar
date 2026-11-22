@@ -81,8 +81,8 @@ void DrawCanvas_isobar(TString fileName){
 	TH1D *hmass_same_low[3][4][7], *hmass_mix_low[3][4][7];
 	TH1D *hmass_mix_weigh[3][4], *hqinv_mix_weigh[3][4];
 
-	const char* pidName[3]  = {"LL", "AA", "LA"};
-    const char* pidTitle[3] = {"#Lambda#Lambda", "#bar{#Lambda}#bar{#Lambda}", "#Lambda#bar{#Lambda}"};
+	const char* pidName[4]  = {"LL", "AA", "LA", "LL+AA"};
+    const char* pidTitle[4] = {"#Lambda#Lambda", "#bar{#Lambda}#bar{#Lambda}", "#Lambda#bar{#Lambda}", "#Lambda#Lambda+#bar{#Lambda}#bar{#Lambda}"};
     
     const char* pairName[4]  = {"SS", "SB", "BS", "BB"};
     const char* pairTitle[4] = {"SS", "SB", "BS", "BB"};

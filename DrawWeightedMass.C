@@ -15,11 +15,15 @@ TH1D* ProjectWeightedMass(TH2D* h2, TH1D* hWeight, const char* name) {
     hProj->Reset();
     hProj->Sumw2();
 
+    double wMin = hWeight ? hWeight->GetXaxis()->GetXmin() : 0.0;
+    double wMax = hWeight ? hWeight->GetXaxis()->GetXmax() : 0.0;
+
     for (int ix = 1; ix <= h2->GetNbinsX(); ++ix) {
         double qinv = h2->GetXaxis()->GetBinCenter(ix);
         double w = 1.0;
-        if (hWeight && qinv > 0.0 && qinv < 2.0) {
-            w = hWeight->GetBinContent(hWeight->FindBin(qinv));
+        if (hWeight && qinv > wMin && qinv < wMax) {
+            double val = hWeight->GetBinContent(hWeight->FindBin(qinv));
+            if (val > 0) w = val;
         }
         TH1D* hSlice = h2->ProjectionY(Form("%s_slice_%d", name, ix), ix, ix);
         hProj->Add(hSlice, w);
@@ -41,14 +45,18 @@ TH1D* ScaleHist(TH1D* hSame, TH1D* hMix, double xmin, double xmax, const char* n
     return hScaled;
 }
 
-void DrawWeightedMass(TString fileName = "OutAnaTree_isobar_phi5eta4_cuttracks_R1p4.root") {
+void DrawWeightedMass(
+    TString fileName       = "OutAnaTree_isobar_phi5eta4_cuttracks_R1p4.root",
+    TString weightFile     = "weigh_KehaoTopoMerge_Kehaofit.root"
+) {
     gStyle->SetOptStat(0);
     gStyle->SetPadBottomMargin(0.14);
     gStyle->SetPadLeftMargin(0.15);
 
     // ① ファイル名から自動で Weight_◯◯.root の名前を生成
-    TString weightFile = fileName;
-    weightFile.ReplaceAll("OutAnaTree_isobar_", "Weight_");
+    /*TString weightFile = fileName;
+    weightFile.ReplaceAll("OutAnaTree_isobar_", "Weight_");*
+    TH1D *hWeight = (fw && !fw->IsZombie()) ? (TH1D*)fw->Get(weightHistName) : nullptr;*/
 
     std::cout << "📂 Input File  : " << fileName << std::endl;
     std::cout << "⚖️ Weight File : " << weightFile << std::endl;
@@ -103,6 +111,12 @@ void DrawWeightedMass(TString fileName = "OutAnaTree_isobar_phi5eta4_cuttracks_R
     TH1D *hDiff_NoW = (TH1D*)hSame_LLAA->Clone("hDiff_NoW");
     hDiff_NoW->Add(hMixNoW_scaled, -1.0);
 
+    std::cout << "hWeight X-axis: [" << hWeight->GetXaxis()->GetXmin() << ", " << hWeight->GetXaxis()->GetXmax()
+              << "], Integral: " << hWeight->Integral() << std::endl;
+    std::cout << "hWeight(0.1) = " << hWeight->GetBinContent(hWeight->FindBin(0.1))
+              << ", hWeight(0.3) = " << hWeight->GetBinContent(hWeight->FindBin(0.3))
+              << ", hWeight(1.0) = " << hWeight->GetBinContent(hWeight->FindBin(1.0)) << std::endl;
+
     // ⑦ 描画
     TCanvas *c1_w = new TCanvas("c_weigh_diff", "Same - Mix (LL+AA)", 400, 300);
     
@@ -137,8 +151,11 @@ void DrawWeightedMass(TString fileName = "OutAnaTree_isobar_phi5eta4_cuttracks_R
     c1_w->Modified();
     c1_w->Update();
 
+    /*
     TString pdfFileName = weightFile;
     pdfFileName.ReplaceAll("Weight_", "MassDiff_");
+    pdfFileName.ReplaceAll(".root", ".pdf");*/
+    TString pdfFileName = "MassDiff_" + weightFile;
     pdfFileName.ReplaceAll(".root", ".pdf");
     c1_w->SaveAs(pdfFileName);
 }
