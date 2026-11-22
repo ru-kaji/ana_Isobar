@@ -7,6 +7,7 @@
 #include "TLine.h"
 #include "TBox.h"
 #include "AxisStyle.h"
+#include "TSystem.h"
 #include <iostream>
 using namespace std;
 
@@ -337,6 +338,101 @@ void MergeCheck(TString fileName){
 			}
 		}
 
+	//--------------------------------------------------
+	//  c3_proj_deta / c3_proj_dphi : 2Dからの1D射影 (Same/Mix)
+	//--------------------------------------------------
+	TCanvas *c3_proj_deta = new TCanvas("c3_proj_deta", "Projection Delta_eta (pid)", 1000, 800);
+	TPad *padMain_deta = new TPad("padMain_deta", "padMain_deta", 0.0, 0.0, 1.0, 0.96);
+	padMain_deta->Draw();
+	padMain_deta->Divide(4, 3);
+	c3_proj_deta->cd(0);
+	latex->DrawLatex(0.5, 0.975, Form("#Delta#eta projection  (|#Delta#phi*|< 0.8) (%s)", title_R.Data()));
+
+	TCanvas *c3_proj_dphi = new TCanvas("c3_proj_dphi", "Projection Delta_phi* (pid)", 1000, 800);
+	TPad *padMain_dphi = new TPad("padMain_dphi", "padMain_dphi", 0.0, 0.0, 1.0, 0.96);
+	padMain_dphi->Draw();
+	padMain_dphi->Divide(4, 3);
+	c3_proj_dphi->cd(0);
+	latex->DrawLatex(0.5, 0.975, Form("#Delta#phi* projection  (|#Delta#eta|< 0.8) (%s)", title_R.Data()));
+
+	// 射影時にスライスする幅（必要に応じて調整してください）
+	double slice_dphi = 0.08;  // Δηへ射影する際の |Δφ*| の幅
+	double slice_deta = 0.08; // Δφ*へ射影する際の |Δη| の幅
+
+	TLine *line1 = new TLine();
+	line1->SetLineStyle(2);
+	line1->SetLineColor(kGray+2);
+
+	for(int ipid = 0; ipid < 3; ipid++){
+		for(int idgpair = 0; idgpair < 4; idgpair++){
+			TH2D *hSame2D = h2D_Ang[ipid][idgpair][0];     // ispin = 0 (All)
+			TH2D *hMix2D  = h2D_Ang_mix[ipid][idgpair][0];
+			if (!hSame2D || !hMix2D) continue;
+
+			// ==========================================
+			// 1. Δη 軸への射影 (ProjectionX)
+			// ==========================================
+			int bY_min = hSame2D->GetYaxis()->FindBin(-slice_dphi);
+			int bY_max = hSame2D->GetYaxis()->FindBin( slice_dphi);
+
+			TH1D *hDeta_same = hSame2D->ProjectionX(Form("hProj_Deta_same_%s_%s", pidName[ipid], dgPairName[idgpair]), bY_min, bY_max);
+			TH1D *hDeta_mix  = hMix2D ->ProjectionX(Form("hProj_Deta_mix_%s_%s",  pidName[ipid], dgPairName[idgpair]), bY_min, bY_max);
+
+			// 規格化（凹みを避けた外側領域 0.2 < |Δη| < 0.5 で規格化）
+			int bx_n1 = hDeta_same->FindBin(-0.5), bx_n2 = hDeta_same->FindBin(-0.2);
+			int bx_p1 = hDeta_same->FindBin( 0.2), bx_p2 = hDeta_same->FindBin( 0.5);
+			double nSame_x = hDeta_same->Integral(bx_n1, bx_n2) + hDeta_same->Integral(bx_p1, bx_p2);
+			double nMix_x  = hDeta_mix ->Integral(bx_n1, bx_n2) + hDeta_mix ->Integral(bx_p1, bx_p2);
+
+			TH1D *hDeta_ratio = (TH1D*)hDeta_same->Clone(Form("hProj_Deta_ratio_%s_%s", pidName[ipid], dgPairName[idgpair]));
+			hDeta_ratio->Sumw2();
+			if (nSame_x > 0 && nMix_x > 0) hDeta_ratio->Scale(nMix_x / nSame_x);
+			hDeta_ratio->Divide(hDeta_mix);
+
+			padMain_deta->cd(ipid*4 + idgpair + 1);
+			hDeta_ratio->SetStats(0);
+			hDeta_ratio->SetTitle(Form("%s %s ", dgPairName_2D[idgpair], pidTitle[ipid]));
+			hDeta_ratio->SetXTitle("#Delta#eta");
+			hDeta_ratio->SetYTitle("Same / Mix");
+			hDeta_ratio->GetXaxis()->SetRangeUser(-0.1, 0.1);
+			hDeta_ratio->GetYaxis()->SetRangeUser(0.4, 1.4);
+			SetAxis(hDeta_ratio);
+			hDeta_ratio->Draw("E");
+			line1->DrawLine(-0.1, 1.0, 0.1, 1.0);
+
+			// ==========================================
+			// 2. Δφ* 軸への射影 (ProjectionY)
+			// ==========================================
+			int bX_min = hSame2D->GetXaxis()->FindBin(-slice_deta);
+			int bX_max = hSame2D->GetXaxis()->FindBin( slice_deta);
+
+			TH1D *hDphi_same = hSame2D->ProjectionY(Form("hProj_Dphi_same_%s_%s", pidName[ipid], dgPairName[idgpair]), bX_min, bX_max);
+			TH1D *hDphi_mix  = hMix2D ->ProjectionY(Form("hProj_Dphi_mix_%s_%s",  pidName[ipid], dgPairName[idgpair]), bX_min, bX_max);
+
+			// 規格化（凹みを避けた外側領域 0.2 < |Δφ*| < 0.5 で規格化）
+			int by_n1 = hDphi_same->FindBin(-0.5), by_n2 = hDphi_same->FindBin(-0.2);
+			int by_p1 = hDphi_same->FindBin( 0.2), by_p2 = hDphi_same->FindBin( 0.5);
+			double nSame_y = hDphi_same->Integral(by_n1, by_n2) + hDphi_same->Integral(by_p1, by_p2);
+			double nMix_y  = hDphi_mix ->Integral(by_n1, by_n2) + hDphi_mix ->Integral(by_p1, by_p2);
+
+			TH1D *hDphi_ratio = (TH1D*)hDphi_same->Clone(Form("hProj_Dphi_ratio_%s_%s", pidName[ipid], dgPairName[idgpair]));
+			hDphi_ratio->Sumw2();
+			if (nSame_y > 0 && nMix_y > 0) hDphi_ratio->Scale(nMix_y / nSame_y);
+			hDphi_ratio->Divide(hDphi_mix);
+
+			padMain_dphi->cd(ipid*4 + idgpair + 1);
+			hDphi_ratio->SetStats(0);
+			hDphi_ratio->SetTitle(Form("%s %s", dgPairName_2D[idgpair], pidTitle[ipid]));
+			hDphi_ratio->SetXTitle("#Delta#phi*");
+			hDphi_ratio->SetYTitle("Same / Mix");
+			hDphi_ratio->GetXaxis()->SetRangeUser(-0.2, 0.2);
+			hDphi_ratio->GetYaxis()->SetRangeUser(0.4, 1.4);
+			SetAxis(hDphi_ratio);
+			hDphi_ratio->Draw("E");
+			line1->DrawLine(-0.2, 1.0, 0.2, 1.0);
+		}
+	}
+
 		//--------------------------------------------------
 		//  c3_ratio_spin: Δη vs Δφ* (ALL, Para, Anti)
 		//--------------------------------------------------
@@ -364,17 +460,19 @@ void MergeCheck(TString fileName){
 			}
 		}
 
-	c3_ratio_pid->SaveAs(Form("h2D_isobar_pid_%.1f.pdf", R_TPC));
+	TString tag = gSystem->BaseName(fileName);
+	tag.ReplaceAll("OutAnaTree_isobar_", "");
+	tag.ReplaceAll(".root", "");
 
+	// 2. 抽出した tag を使ってPDFを保存する
+	c3_ratio_pid->SaveAs(Form("DetaDphi_pid_%s.pdf", tag.Data()));
+	c3_proj_deta->SaveAs(Form("Deta_proj_pid_%s.pdf", tag.Data()));
+	c3_proj_dphi->SaveAs(Form("DphiStar_proj_pid_%s.pdf", tag.Data()));
+/*
 	for(int ipid=0; ipid<3; ipid++){
-		for(int ispin=0; ispin<3; ispin++){
-			//c3[ipid][ispin]->SaveAs(Form("h2D_isobar_%s_%s.pdf", pidName[ipid], spinName[ispin]));	
-		}
-		
-		c3_ratio_spin[ipid]->SaveAs(Form("h2D_isobar_spin_%s_%.1f.pdf", pidName[ipid], R_TPC));
-		//c4[ipid]->SaveAs(Form("deta_isobar_%s.pdf", pidName[ipid]));
-		//c5[ipid]->SaveAs(Form("dphiStar_isobar_%s.pdf", pidName[ipid]));
-	}
+		c3_ratio_spin[ipid]->SaveAs(Form("DetaDphi_spin_%s_%s.pdf", pidName[ipid], tag.Data()));
+	}*/
+	
 } // end of Canvas
 
 TLegend* SetLegend(TH1* h1, TH1* h2){
