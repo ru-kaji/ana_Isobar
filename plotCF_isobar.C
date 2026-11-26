@@ -227,19 +227,19 @@ void DrawSpin(TH1D* hPara, TH1D* hAnti, TString title){
         hNorm_Para->SetMarkerStyle(20); // 丸
         hNorm_Para->SetMarkerColor(kRed);
         hNorm_Para->SetLineColor(kRed);
-        hNorm_Para->SetMarkerSize(0.6);
+        hNorm_Para->SetMarkerSize(0.5);
         hNorm_Para->SetMinimum(0.4); 
         hNorm_Para->SetMaximum(1.4);
         //hNorm_Para->GetXaxis()->SetRangeUser(0.0, 2.0); 
-        hNorm_Para->GetXaxis()->SetRangeUser(0.0, 2.0); 
+        hNorm_Para->GetXaxis()->SetRangeUser(0.0, 0.6); 
 
         // Anti-Parallel
         hNorm_Anti->SetMarkerStyle(21); // 四角
         hNorm_Anti->SetMarkerColor(kBlue);
         hNorm_Anti->SetLineColor(kBlue);
-        hNorm_Anti->SetMarkerSize(0.6);
+        hNorm_Anti->SetMarkerSize(0.5);
         //hNorm_Anti->GetXaxis()->SetRangeUser(0.0, 2.0); 
-        hNorm_Anti->GetXaxis()->SetRangeUser(0.0, 2.0); 
+        hNorm_Anti->GetXaxis()->SetRangeUser(0.0, 0.6); 
 
         // Draw same
         hNorm_Para->Draw("PE"); 
@@ -262,7 +262,7 @@ void DrawSpin(TH1D* hPara, TH1D* hAnti, TString title){
 
         // 基準線
         //TLine *line = new TLine(0.0, 1.0, 2.0, 1.0);
-        TLine *line = new TLine(0.0, 1.0, 0.5, 1.0);
+        TLine *line = new TLine(0.0, 1.0, 0.6, 1.0);
         line->SetLineStyle(2);
         line->SetLineColor(kBlack);
         line->Draw();
@@ -647,8 +647,8 @@ void plotCF_isobar(TString fileName) {
 
                 TString title_5 = Form("%s %s", pairName[ipair], pidName[ipid]);
                 h5_Anti->SetTitle(title_5);
-                h5_Para->GetXaxis()->SetRangeUser(0.0, 2.0);
-                h5_Anti->GetXaxis()->SetRangeUser(0.0, 2.0);
+                h5_Para->GetXaxis()->SetRangeUser(0.0, 0.6);
+                h5_Anti->GetXaxis()->SetRangeUser(0.0, 0.6);
             
             }
         }
@@ -691,7 +691,7 @@ void plotCF_isobar(TString fileName) {
             ana_nocut_Para[ipid][0]->CorrectCF(ana_nocut_Para[ipid][1]->GetNorm(), ana_nocut_Para[ipid][2]->GetNorm(), ana_nocut_Para[ipid][3]->GetNorm());
             ana_nocut_Anti[ipid][0]->CorrectCF(ana_nocut_Anti[ipid][1]->GetNorm(), ana_nocut_Anti[ipid][2]->GetNorm(), ana_nocut_Anti[ipid][3]->GetNorm());
 
-            TH1D *hPara_nocut_Uncorr   = ana_nocut_Para[ipid][0]->GetNormCorr();
+            TH1D *hPara_nocut_Uncorr   = ana_nocut_Para[ipid][0]->GetNormUncorr();
             TH1D *hAnti_nocut_Uncorr = ana_nocut_Anti[ipid][0]->GetNormUncorr();
             TH1D *hPara_nocut_Corr   = ana_nocut_Para[ipid][0]->GetNormCorr();
             TH1D *hAnti_nocut_Corr   = ana_nocut_Anti[ipid][0]->GetNormCorr();
@@ -717,7 +717,7 @@ void plotCF_isobar(TString fileName) {
 
             //Parallel
             c_cf6->cd(ipid+1);
-
+            SetAxisCF(hPara_nocut_Uncorr);
             hPara_nocut_Uncorr->SetTitle(Form("cos#theta_{12} > 0, %s;Q_{inv} (GeV/c);C(Q_{inv})", pidName[ipid]));
             hPara_nocut_Uncorr->GetXaxis()->SetRangeUser(0.0, 0.5); 
             hPara_nocut_Uncorr->SetMinimum(0.4); 
@@ -727,40 +727,40 @@ void plotCF_isobar(TString fileName) {
             hPara_nocut_Uncorr->SetMarkerStyle(24);
             hPara_nocut_Uncorr->SetMarkerColor(kBlack);
             hPara_nocut_Uncorr->SetLineColor(kBlack);
-            hPara_nocut_Uncorr->SetMarkerSize(0.7);
+            hPara_nocut_Uncorr->SetMarkerSize(0.6);
 
             // nocut + Corr(黒い実線、塗りの丸)
             hPara_nocut_Corr->SetMarkerStyle(20);
             hPara_nocut_Corr->SetMarkerColor(kBlack);
             hPara_nocut_Corr->SetLineColor(kBlack);
-            hPara_nocut_Corr->SetMarkerSize(0.7);
+            hPara_nocut_Corr->SetMarkerSize(0.6);
             
             // cut + Corr(グレーの実線、白抜きの丸)
             hPara_cut_Uncorr->SetMarkerStyle(24); 
             hPara_cut_Uncorr->SetMarkerColor(kRed);
             hPara_cut_Uncorr->SetLineColor(kRed);
-            hPara_cut_Uncorr->SetMarkerSize(0.7);
+            hPara_cut_Uncorr->SetMarkerSize(0.6);
             
             // cut + Corr (赤い実線、塗りの丸)
             hPara_cut_Corr->SetMarkerStyle(20);
             hPara_cut_Corr->SetMarkerColor(kRed);
             hPara_cut_Corr->SetLineColor(kRed);
-            hPara_cut_Corr->SetMarkerSize(0.7);
+            hPara_cut_Corr->SetMarkerSize(0.6);
         
             hPara_nocut_Uncorr->Draw("PE");
             hPara_cut_Uncorr->Draw("PE same");
             hPara_nocut_Corr->Draw("PE same");
             hPara_cut_Corr->Draw("PE same");
-            SetAxisCF(hPara_nocut_Uncorr); 
+             
             
-            TLegend *legC1 = new TLegend(0.4, 0.24, 0.75, 0.42);
+            TLegend *legC1 = new TLegend(0.3, 0.24, 0.65, 0.42);
             legC1->SetBorderSize(0);
             legC1->SetFillStyle(0);
-            legC1->SetTextSize(0.045);
-            legC1->AddEntry(hPara_nocut_Uncorr, "Nocut + Before Corr.", "lp");
-            legC1->AddEntry(hPara_nocut_Corr, "Nocut + Purity Corr.", "lp");
-            legC1->AddEntry(hPara_cut_Uncorr, "Cut + Before Corr.", "lp");
-            legC1->AddEntry(hPara_cut_Corr, "Cut + Purity Corr.", "lp");
+            legC1->SetTextSize(0.04);
+            legC1->AddEntry(hPara_nocut_Uncorr, "w/o Merge cut, w/o Purity corr.", "lp");
+            legC1->AddEntry(hPara_nocut_Corr,   "w/o Merge cut, w/ Purity corr.",  "lp");
+            legC1->AddEntry(hPara_cut_Uncorr,   "w/ Merge cut,  w/o Purity corr.",  "lp");
+            legC1->AddEntry(hPara_cut_Corr,     "w/ Merge cut,  w/ Purity corr.",   "lp");
             legC1->Draw();
             
             TLine *line_comp = new TLine(0.0, 1.0, 0.5, 1.0);
@@ -779,25 +779,25 @@ void plotCF_isobar(TString fileName) {
             hAnti_nocut_Uncorr->SetMarkerStyle(24);
             hAnti_nocut_Uncorr->SetMarkerColor(kBlack);
             hAnti_nocut_Uncorr->SetLineColor(kBlack);
-            hAnti_nocut_Uncorr->SetMarkerSize(0.7);
+            hAnti_nocut_Uncorr->SetMarkerSize(0.6);
             
             // nocut + Corr (黒、塗りの丸)
             hAnti_nocut_Corr->SetMarkerStyle(20);
             hAnti_nocut_Corr->SetMarkerColor(kBlack);
             hAnti_nocut_Corr->SetLineColor(kBlack);
-            hAnti_nocut_Corr->SetMarkerSize(0.7);
+            hAnti_nocut_Corr->SetMarkerSize(0.6);
 
             // cut + Uncorr (グレーの実線、白抜きの丸)
             hAnti_cut_Uncorr->SetMarkerStyle(24); 
             hAnti_cut_Uncorr->SetMarkerColor(kBlue);
             hAnti_cut_Uncorr->SetLineColor(kBlue);
-            hAnti_cut_Uncorr->SetMarkerSize(0.7);
+            hAnti_cut_Uncorr->SetMarkerSize(0.6);
             
             // cut + Corr (青い実線、塗りの丸)
             hAnti_cut_Corr->SetMarkerStyle(20);
             hAnti_cut_Corr->SetMarkerColor(kBlue);
             hAnti_cut_Corr->SetLineColor(kBlue);
-            hAnti_cut_Corr->SetMarkerSize(0.7);
+            hAnti_cut_Corr->SetMarkerSize(0.6);
         
             hAnti_nocut_Uncorr->Draw("PE");
             hAnti_cut_Uncorr->Draw("PE same");
@@ -805,14 +805,14 @@ void plotCF_isobar(TString fileName) {
             hAnti_cut_Corr->Draw("PE same");
             SetAxisCF(hAnti_nocut_Uncorr);
             
-            TLegend *legC2 = new TLegend(0.4, 0.24, 0.75, 0.42);
+            TLegend *legC2 = new TLegend(0.3, 0.24, 0.65, 0.42);
             legC2->SetBorderSize(0);
             legC2->SetFillStyle(0);
             legC2->SetTextSize(0.045);
-            legC2->AddEntry(hAnti_nocut_Uncorr, "Nocut + Before Corr.", "lp");
-            legC2->AddEntry(hAnti_nocut_Corr, "Nocut + Purity Corr.", "lp");
-            legC2->AddEntry(hAnti_cut_Uncorr, "Cut + Before Corr.", "lp");
-            legC2->AddEntry(hAnti_cut_Corr, "Cut + Purity Corr.", "lp");
+            legC2->AddEntry(hAnti_nocut_Uncorr, "w/o Merge cut, w/o Purity corr.", "lp");
+            legC2->AddEntry(hAnti_nocut_Corr,   "w/o Merge cut, w/ Purity corr.",  "lp");
+            legC2->AddEntry(hAnti_cut_Uncorr,   "w/ Merge cut,  w/o Purity corr.",  "lp");
+            legC2->AddEntry(hAnti_cut_Corr,     "w/ Merge cut,  w/ Purity corr.",   "lp");
             legC2->Draw();
             line_comp->Draw();
 
@@ -1214,16 +1214,18 @@ void plotCF_isobar(TString fileName) {
     f_my->Close();
     std::cout << "✅ Saved histograms to " << outFileName << std::endl;
        
-
+    TString tag = gSystem->BaseName(fileName);
+	tag.ReplaceAll("OutAnaTree_isobar_", "");
+	tag.ReplaceAll(".root", "");
 
     //=============Save Canvas=============
     /*
     c_cf1[ipid]->SaveAs(Form("CF_Norm_Pair_%s.pdf", pidName[ipid]));
     c_cf2[ipid]->SaveAs(Form("CF_Norm_Spin_%s.pdf", pidName[ipid]));
     c_cf3[ipid]->SaveAs(Form("CF_Normed_Full_%s.pdf", pidName[ipid]));
-    c_cf4[ipid]->SaveAs(Form("CF_Spin_Full_run16_%s.pdf", pidName[ipid]));
-    c_cf5[ipid]->SaveAs(Form("CF_Spin_Low_run16_%s.pdf", pidName[ipid]));
-    c_cf6[ipid]->SaveAs(Form("CF_Corr_Spin_run16_%s.pdf", pidName[ipid]));
+    c_cf4[ipid]->SaveAs(Form("CF_Spin_Full_run16_%s.pdf", pidName[ipid]));*/
+    //c_cf5->SaveAs(Form("CF_SBpair_%s.pdf", tag.Data()));
+    /*c_cf6[ipid]->SaveAs(Form("CF_Corr_Spin_run16_%s.pdf", pidName[ipid]));
     c_cf7[ipid]->SaveAs(Form("CF_Spin_Cent_run16_%s.pdf", pidName[ipid]));
     c_cf8[ipid]->SaveAs(Form("CF_Spin_Cent3_run16_%s.pdf", pidName[ipid]));
     c_cf5->SaveAs("CF_isobar_cut_SB.pdf");

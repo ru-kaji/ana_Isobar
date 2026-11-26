@@ -466,8 +466,8 @@ void MergeCheck(TString fileName){
 
 	// 2. 抽出した tag を使ってPDFを保存する
 	c3_ratio_pid->SaveAs(Form("DetaDphi_pid_%s.pdf", tag.Data()));
-	c3_proj_deta->SaveAs(Form("Deta_proj_pid_%s.pdf", tag.Data()));
-	c3_proj_dphi->SaveAs(Form("DphiStar_proj_pid_%s.pdf", tag.Data()));
+	//c3_proj_deta->SaveAs(Form("Deta_proj_pid_%s.pdf", tag.Data()));
+	//c3_proj_dphi->SaveAs(Form("DphiStar_proj_pid_%s.pdf", tag.Data()));
 /*
 	for(int ipid=0; ipid<3; ipid++){
 		c3_ratio_spin[ipid]->SaveAs(Form("DetaDphi_spin_%s_%s.pdf", pidName[ipid], tag.Data()));

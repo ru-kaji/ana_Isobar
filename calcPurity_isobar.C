@@ -297,6 +297,8 @@ void calcPurity_isobar(TString filename, TString particle = "L") {
         leg->AddEntry(fBg, "Background (pol1)", "l");
         leg->Draw();
         
+        double totalEntries = hFit->GetEntries();
+
         TLatex tex;
         tex.SetNDC();
         tex.SetTextSize(0.03); // テキストサイズを少し調整
@@ -308,6 +310,7 @@ void calcPurity_isobar(TString filename, TString particle = "L") {
         tex.DrawLatex(0.5, 0.78, Form("Purity (S_{fit}/S+B_{fit}) = %.4f", purity_fit));
         tex.DrawLatex(0.5, 0.73, Form("Purity (S_{fit}/S+B_{data}) = %.4f", purity_data));
         tex.DrawLatex(0.5, 0.68, Form("#chi^{2}/ndf = %.1f / %d = %.2f", chi2, (int)ndf, chi2ndf)); // chi2表示を追加
+        tex.DrawLatex(0.5, 0.63, Form("Total Entries = %.3e", totalEntries));
         
         if (ofs.is_open()) {
             ofs << "[" << targetName[i].Data() << "]\n";
@@ -315,6 +318,7 @@ void calcPurity_isobar(TString filename, TString particle = "L") {
             ofs << Form("Purity (fit)  : %.4f\n", purity_fit);
             ofs << Form("Purity (data) : %.4f\n", purity_data);
             ofs << Form("Chi2 / NDF    : %.1f / %d = %.2f\n", chi2, (int)ndf, chi2ndf);
+            ofs << Form("Total Entries : %.0f  (%.4e)\n", totalEntries, totalEntries);
             ofs << "Fit Parameters:\n";
             for (int ipar = 0; ipar < fTotal->GetNpar(); ipar++) {
                 ofs << Form("  p%d = %12.6g  +/-  %10.4g\n",
