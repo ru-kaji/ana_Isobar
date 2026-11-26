@@ -142,6 +142,13 @@ void MergeCheck(TString fileName){
 			c3[ipid][ispin] = new TCanvas(Form("c3_%s_%s", pidName[ipid], spinName[ispin]), Form("%s %s", pidName[ipid], spinName[ispin]), 1000, 700);
 			c3[ipid][ispin]->Divide(4,3);
 
+			h2D_Ang[ipid][2][ispin]->GetXaxis()->SetRangeUser(-0.5, 0.5);
+			h2D_Ang[ipid][2][ispin]->GetYaxis()->SetRangeUser(-0.5, 0.5);
+			h2D_Ang[ipid][2][ispin]->SetMinimum(-1111); // 既存の設定をリセット
+			h2D_Ang[ipid][2][ispin]->SetMaximum(-1111);
+
+		
+
 			for(int idgpair=0; idgpair<4; idgpair++){ // 0:pp, 1:ππ, 2:pπ, 3:πp
 
 				if (!h2D_Ang[ipid][idgpair][ispin] || !h2D_Ang_mix[ipid][idgpair][ispin]) {
@@ -150,25 +157,58 @@ void MergeCheck(TString fileName){
 				}
 
 				c3[ipid][ispin]->cd(idgpair+1);          
-				gPad->SetLogz(); 
+				//gPad->SetLogz(1); 
 				h2D_Ang[ipid][idgpair][ispin]->SetStats(0);
 				h2D_Ang[ipid][idgpair][ispin]->SetTitle(Form("Same %s %s %s", dgPairName_2D[idgpair], pidTitle[ipid], spinTitle[ispin]));
 				h2D_Ang[ipid][idgpair][ispin]->SetXTitle("#Delta#eta");
 				h2D_Ang[ipid][idgpair][ispin]->SetYTitle("#Delta#phi*");
 				SetAxis2D(h2D_Ang[ipid][idgpair][ispin]);
-				h2D_Ang[ipid][idgpair][ispin]->Draw("colz");
+				h2D_Ang[ipid][idgpair][ispin]->GetXaxis()->SetRangeUser(-0.5, 0.5);
+    			h2D_Ang[ipid][idgpair][ispin]->GetYaxis()->SetRangeUser(-0.5, 0.5);
+				if (idgpair == 0) { // p-p だけ中央の凹み(|Δη|<0.1, |Δφ*|<0.1)を除いて最小値を探す
+					TH2D *h = h2D_Ang[ipid][idgpair][ispin];
+					double zmin = 1e9, zmax = 0;
+					int bx1 = h->GetXaxis()->FindBin(-0.45), bx2 = h->GetXaxis()->FindBin(0.45);
+    				int by1 = h->GetYaxis()->FindBin(-0.45), by2 = h->GetYaxis()->FindBin(0.45);
+					for (int ix = bx1; ix <= bx2; ix++) {
+						double x = h->GetXaxis()->GetBinCenter(ix);
+						for (int iy = by1; iy <= by2; iy++) {
+							double y = h->GetYaxis()->GetBinCenter(iy);
+							if (fabs(x) < 0.1 && fabs(y) < 0.1) continue; // 中央の凹みを除外
+							double val = h->GetBinContent(ix, iy);
+							if (val > 0 && val < zmin) zmin = val;
+							if (val > zmax) zmax = val;
+						}
+					}
+					TH2D *hDraw = (TH2D*)h->Clone(Form("%s_draw_%d_%d", h->GetName(), ipid, ispin));
+					for (int ix = 1; ix <= hDraw->GetNbinsX(); ix++) {
+						for (int iy = 1; iy <= hDraw->GetNbinsY(); iy++) {
+							if (hDraw->GetBinContent(ix, iy) < zmin) {
+								hDraw->SetBinContent(ix, iy, zmin * 1.0001); // 境界誤差で白抜けしないよう微小に上げる
+							}
+						}
+					}
+					hDraw->SetMinimum(zmin);
+					hDraw->SetMaximum(zmax);
+					hDraw->Draw("colz");
+					} else {
+						h2D_Ang[ipid][idgpair][ispin]->SetMinimum(-1111);
+						h2D_Ang[ipid][idgpair][ispin]->SetMaximum(-1111);
+						h2D_Ang[ipid][idgpair][ispin]->Draw("colz");
+					}
 
 				c3[ipid][ispin]->cd(idgpair+5);          
-				gPad->SetLogz(); 
+				//gPad->SetLogz(1); 
 				h2D_Ang_mix[ipid][idgpair][ispin]->SetStats(0);
 				h2D_Ang_mix[ipid][idgpair][ispin]->SetTitle(Form("Mix %s %s %s", dgPairName_2D[idgpair], pidTitle[ipid], spinTitle[ispin]));
 				h2D_Ang_mix[ipid][idgpair][ispin]->SetXTitle("#Delta#eta");
 				h2D_Ang_mix[ipid][idgpair][ispin]->SetYTitle("#Delta#phi*");
 				SetAxis2D(h2D_Ang_mix[ipid][idgpair][ispin]);
+				h2D_Ang_mix[ipid][idgpair][ispin]->GetXaxis()->SetRangeUser(-0.5, 0.5);
+				h2D_Ang_mix[ipid][idgpair][ispin]->GetYaxis()->SetRangeUser(-0.5, 0.5);
 				h2D_Ang_mix[ipid][idgpair][ispin]->Draw("colz");
 
 				c3[ipid][ispin]->cd(idgpair + 9); 
-				gPad->SetLogz(0); 
 				//Double_t nSame = h2D_Ang[ipid][idgpair][ispin]->GetEntries();
 				//Double_t nMix  = h2D_Ang_mix[ipid][idgpair][ispin]->GetEntries();
 				TAxis *xAxis = h2D_Ang[ipid][idgpair][ispin]->GetXaxis();
@@ -197,10 +237,11 @@ void MergeCheck(TString fileName){
 				h2D_Ang_ratio[ipid][idgpair][ispin]->SetXTitle("#Delta#eta");
 				h2D_Ang_ratio[ipid][idgpair][ispin]->SetYTitle("#Delta#phi*");
 				SetAxis2D(h2D_Ang_ratio[ipid][idgpair][ispin]);
-				//h2D_Ang_ratio[ipid][idgpair][ispin]->Draw("colz");
+				h2D_Ang_ratio[ipid][idgpair][ispin]->Draw("colz");
 
-				//float min_X=0.0, max_X=0.0, min_Y=0.0, max_Y=0.0;
-				float min_X=-0.1, max_X=0.1, min_Y=-0.2, max_Y=0.2;
+				float min_X=-0.5, max_X=0.5, min_Y=-0.5, max_Y=0.5;
+				//float min_X=-0.1, max_X=0.1, min_Y=-0.2, max_Y=0.2;
+
 /*
 				if(ipid==0 | ipid==1){
 					min_X = -0.05;
@@ -214,10 +255,8 @@ void MergeCheck(TString fileName){
 					max_Y = 0.2;
 				}
 */
-				h2D_Ang[ipid][idgpair][ispin]    ->GetXaxis()->SetRangeUser(-0.5, 0.5);
-				h2D_Ang[ipid][idgpair][ispin]    ->GetYaxis()->SetRangeUser(-1.5, 1.5);
-				h2D_Ang_mix[ipid][idgpair][ispin]->GetXaxis()->SetRangeUser(-0.5, 0.5);
-				h2D_Ang_mix[ipid][idgpair][ispin]->GetYaxis()->SetRangeUser(-1.5, 1.5);
+				
+				
 				h2D_Ang_ratio[ipid][idgpair][ispin]	 		  ->GetXaxis()->SetRangeUser(min_X, max_X);
 				h2D_Ang_ratio[ipid][idgpair][ispin]	 		  ->GetYaxis()->SetRangeUser(min_Y, max_Y);
 

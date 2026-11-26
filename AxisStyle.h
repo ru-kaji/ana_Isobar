@@ -14,6 +14,7 @@ void SetAxis2D(TH1* h) {
     }*/
 
     gPad->SetLeftMargin(0.20);
+    gPad->SetRightMargin(0.13);
     gPad->SetBottomMargin(0.16);
     gPad->SetTopMargin(0.13);
 
